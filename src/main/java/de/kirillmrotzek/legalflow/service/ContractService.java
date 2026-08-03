@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.service;
 
+import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,10 @@ public class ContractService {
 
     public List<Contract> findAll() {
         return contractRepository.findAll();
+    }
+
+    public Contract findById(Long id) {
+        return contractRepository.findById(id)
+                .orElseThrow(() -> new ContractNotFoundException(id));
     }
 }

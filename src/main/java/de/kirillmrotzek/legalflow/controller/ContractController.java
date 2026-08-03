@@ -19,6 +19,11 @@ public class ContractController {
         return contractService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public Contract getContractById(@PathVariable Long id) {
+        return contractService.findById(id);
+    }
+
     @PostMapping
     public Contract createContract(@RequestBody Contract contract) {
         return contractService.save(contract);
