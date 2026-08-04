@@ -26,4 +26,25 @@ public class ContractService {
         return contractRepository.findById(id)
                 .orElseThrow(() -> new ContractNotFoundException(id));
     }
+
+    public Contract update(Long id, Contract contract) {
+        Contract existingContract = findById(id);
+        existingContract.setTitle(contract.getTitle());
+        existingContract.setContractNumber(contract.getContractNumber());
+        existingContract.setCounterparty(contract.getCounterparty());
+        existingContract.setContractType(contract.getContractType());
+        existingContract.setContractStatus(contract.getContractStatus());
+        existingContract.setRiskLevel(contract.getRiskLevel());
+        existingContract.setStartDate(contract.getStartDate());
+        existingContract.setEndDate(contract.getEndDate());
+        existingContract.setGoverningLaw(contract.getGoverningLaw());
+        existingContract.setContractValue(contract.getContractValue());
+        existingContract.setAutoRenewal(contract.getAutoRenewal());
+        return contractRepository.save(existingContract);
+    }
+
+    public void delete(Long id) {
+        Contract existingContract = findById(id);
+        contractRepository.delete(existingContract);
+    }
 }

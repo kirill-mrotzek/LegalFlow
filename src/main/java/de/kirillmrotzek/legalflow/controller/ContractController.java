@@ -28,4 +28,16 @@ public class ContractController {
     public Contract createContract(@RequestBody Contract contract) {
         return contractService.save(contract);
     }
+
+    @PutMapping("/{id}")
+    public Contract updateContract(@PathVariable Long id,
+                                   @RequestBody Contract contract) {
+        return contractService.update(id, contract);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteContract(@PathVariable Long id) {
+        contractService.delete(id);
+
+    }
 }
