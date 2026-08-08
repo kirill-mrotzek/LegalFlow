@@ -5,10 +5,12 @@ import de.kirillmrotzek.legalflow.dto.ContractResponse;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.service.ContractService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,36 +31,44 @@ public class ContractController {
     }
 
     @GetMapping("/{id}")
-    public ContractResponse getContractById(@PathVariable Long id) {
+    public ResponseEntity<ContractResponse> getContractById(@PathVariable Long id) {
 
         Contract contract = contractService.findById(id);
 
-        return contractMapper.toResponse(contract);
+        return ResponseEntity.ok(
+                contractMapper.toResponse(contract));
     }
 
     @PostMapping
-    public ContractResponse createContract(@RequestBody ContractRequest request) {
+    public ResponseEntity<ContractResponse> createContract(@Valid @RequestBody ContractRequest request) {
 
         Contract contract = contractMapper.toEntity(request);
 
         Contract savedContract = contractService.save(contract);
 
-        return contractMapper.toResponse(savedContract);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(
+                        "Location",
+                        "/contracts/" + savedContract.getId()
+                )
+                .body(contractMapper.toResponse(savedContract));
     }
 
     @PutMapping("/{id}")
-    public ContractResponse updateContract(@PathVariable Long id,
-                                           @RequestBody ContractRequest request) {
+    public ResponseEntity<ContractResponse> updateContract(@PathVariable Long id,
+                                                           @Valid @RequestBody ContractRequest request) {
 
         Contract contract = contractMapper.toEntity(request);
 
         Contract updatedContract = contractService.update(id, contract);
 
-        return contractMapper.toResponse(updatedContract);
+        return ResponseEntity.ok(
+                contractMapper.toResponse(updatedContract));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteContract(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteContract(@PathVariable Long id) {
         contractService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
