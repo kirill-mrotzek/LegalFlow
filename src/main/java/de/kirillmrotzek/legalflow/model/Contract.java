@@ -56,4 +56,3 @@ public class Contract {
 
     private BigDecimal contractValue;
 }
-
