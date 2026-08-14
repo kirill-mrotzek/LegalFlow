@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.service;
 
+import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
@@ -20,6 +21,10 @@ public class ContractService {
 
     public List<Contract> findAll() {
         return contractRepository.findAll();
+    }
+
+    public List<Contract> findByStatus(ContractStatus status) {
+        return contractRepository.findByContractStatus(status);
     }
 
     public Contract findById(Long id) {

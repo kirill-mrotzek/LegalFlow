@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.service;
 
+import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
@@ -165,5 +166,29 @@ class ContractServiceTest {
                 ContractNotFoundException.class,
                 () -> contractService.delete(999L)
         );
+    }
+
+    @Test
+    void findByStatus_shouldReturnContractsWithGivenStatus() {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Active NDA");
+        contract1.setContractStatus(ContractStatus.ACTIVE);
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Active Service Agreement");
+        contract2.setContractStatus(ContractStatus.ACTIVE);
+
+        when(contractRepository.findByContractStatus(ContractStatus.ACTIVE))
+                .thenReturn(List.of(contract1, contract2));
+
+        List<Contract> result =
+                contractService.findByStatus(ContractStatus.ACTIVE);
+
+        assertEquals(2, result.size());
+        assertSame(contract1, result.get(0));
+        assertSame(contract2, result.get(1));
     }
 }

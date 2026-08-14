@@ -122,4 +122,38 @@ class ContractRepositoryTest {
                 () -> contractRepository.saveAndFlush(contract2)
         );
     }
+
+    @Test
+    void findByContractStatus_shouldReturnContractsWithGivenStatus() {
+
+        Contract activeContract = new Contract();
+        activeContract.setTitle("Active NDA");
+        activeContract.setContractNumber("NDA-002");
+        activeContract.setContractType(ContractType.NDA);
+        activeContract.setContractStatus(ContractStatus.ACTIVE);
+        activeContract.setRiskLevel(RiskLevel.LOW);
+        activeContract.setStartDate(LocalDate.of(2026, 1, 1));
+        activeContract.setEndDate(LocalDate.of(2026, 12, 31));
+        activeContract.setCounterparty("Google");
+
+        Contract draftContract = new Contract();
+        draftContract.setTitle("Draft Agreement");
+        draftContract.setContractNumber("DA-001");
+        draftContract.setContractType(ContractType.SERVICE);
+        draftContract.setContractStatus(ContractStatus.DRAFT);
+        draftContract.setRiskLevel(RiskLevel.MEDIUM);
+        draftContract.setStartDate(LocalDate.of(2026, 2, 1));
+        draftContract.setEndDate(LocalDate.of(2027, 1, 31));
+        draftContract.setCounterparty("Microsoft");
+
+        contractRepository.save(activeContract);
+        contractRepository.save(draftContract);
+
+        List<Contract> result =
+                contractRepository.findByContractStatus(ContractStatus.ACTIVE);
+
+        assertEquals(1, result.size());
+        assertEquals("Active NDA", result.get(0).getTitle());
+        assertEquals(ContractStatus.ACTIVE, result.get(0).getContractStatus());
+    }
 }
