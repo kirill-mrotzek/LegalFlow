@@ -9,4 +9,6 @@ import java.util.List;
 public interface ContractRepository extends JpaRepository<Contract, Long> {
 
     List<Contract> findByContractStatus(ContractStatus contractStatus);
+
+    List<Contract> findByCounterpartyContainingIgnoreCase(String counterparty);
 }

@@ -361,4 +361,33 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.message")
                         .value("Invalid value 'INVALID' for parameter 'status'"));
     }
+
+    @Test
+    void getAllContracts_shouldFilterByCounterparty() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setCounterparty("Google");
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+        response.setCounterparty("Google");
+
+        when(contractService.findByCounterparty("google"))
+                .thenReturn(List.of(contract));
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("counterparty", "google")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].title").value("NDA"))
+                .andExpect(jsonPath("$[0].counterparty").value("Google"));
+    }
 }

@@ -24,12 +24,15 @@ public class ContractController {
 
     @GetMapping
     public List<ContractResponse> getAllContracts(
-            @RequestParam(required = false) ContractStatus status) {
+            @RequestParam(required = false) ContractStatus status,
+            @RequestParam(required = false) String counterparty) {
 
         List<Contract> contracts;
 
         if (status != null) {
             contracts = contractService.findByStatus(status);
+        } else if (counterparty != null) {
+            contracts = contractService.findByCounterparty(counterparty);
         } else {
             contracts = contractService.findAll();
         }

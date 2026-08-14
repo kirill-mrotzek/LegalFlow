@@ -156,4 +156,38 @@ class ContractRepositoryTest {
         assertEquals("Active NDA", result.get(0).getTitle());
         assertEquals(ContractStatus.ACTIVE, result.get(0).getContractStatus());
     }
+
+    @Test
+    void findByCounterpartyContainingIgnoreCase_shouldReturnMatchingContracts() {
+
+        Contract contract1 = new Contract();
+        contract1.setTitle("NDA");
+        contract1.setContractNumber("NDA-003");
+        contract1.setContractType(ContractType.NDA);
+        contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setRiskLevel(RiskLevel.LOW);
+        contract1.setStartDate(LocalDate.of(2026, 1, 1));
+        contract1.setEndDate(LocalDate.of(2026, 12, 31));
+        contract1.setCounterparty("Google");
+
+        Contract contract2 = new Contract();
+        contract2.setTitle("Service Agreement");
+        contract2.setContractNumber("SA-002");
+        contract2.setContractType(ContractType.SERVICE);
+        contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setRiskLevel(RiskLevel.MEDIUM);
+        contract2.setStartDate(LocalDate.of(2026, 2, 1));
+        contract2.setEndDate(LocalDate.of(2027, 1, 31));
+        contract2.setCounterparty("Microsoft");
+
+        contractRepository.save(contract1);
+        contractRepository.save(contract2);
+
+        List<Contract> result =
+                contractRepository.findByCounterpartyContainingIgnoreCase("google");
+
+        assertEquals(1, result.size());
+        assertEquals("Google", result.get(0).getCounterparty());
+        assertEquals("NDA", result.get(0).getTitle());
+    }
 }
