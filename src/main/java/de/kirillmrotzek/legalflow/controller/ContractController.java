@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import de.kirillmrotzek.legalflow.enums.ContractStatus;
 
 import java.util.List;
 
@@ -22,10 +23,18 @@ public class ContractController {
     private final ContractMapper contractMapper;
 
     @GetMapping
-    public List<ContractResponse> getAllContracts() {
+    public List<ContractResponse> getAllContracts(
+            @RequestParam(required = false) ContractStatus status) {
 
-        return contractService.findAll()
-                .stream()
+        List<Contract> contracts;
+
+        if (status != null) {
+            contracts = contractService.findByStatus(status);
+        } else {
+            contracts = contractService.findAll();
+        }
+
+        return contracts.stream()
                 .map(contractMapper::toResponse)
                 .toList();
     }

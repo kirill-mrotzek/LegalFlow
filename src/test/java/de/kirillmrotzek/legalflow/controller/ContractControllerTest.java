@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.controller;
 
+import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
 import de.kirillmrotzek.legalflow.service.ContractService;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doThrow;
+
 import java.util.List;
 
 @WebMvcTest(ContractController.class)
@@ -316,5 +318,47 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$[0].title").value("NDA"))
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].title").value("Service Agreement"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByStatus() throws Exception {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Active NDA");
+        contract1.setContractStatus(ContractStatus.ACTIVE);
+
+        ContractResponse response1 = new ContractResponse();
+        response1.setId(1L);
+        response1.setTitle("Active NDA");
+        response1.setContractStatus(ContractStatus.ACTIVE);
+
+        when(contractService.findByStatus(ContractStatus.ACTIVE))
+                .thenReturn(List.of(contract1));
+
+        when(contractMapper.toResponse(contract1))
+                .thenReturn(response1);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("status", "ACTIVE")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].title").value("Active NDA"))
+                .andExpect(jsonPath("$[0].contractStatus").value("ACTIVE"));
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenStatusIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("status", "INVALID")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("Invalid value 'INVALID' for parameter 'status'"));
     }
 }

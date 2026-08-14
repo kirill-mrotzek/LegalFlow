@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.exception;
 
+import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -9,6 +10,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.List;
 
@@ -78,6 +80,33 @@ class GlobalExceptionHandlerTest {
                         "contractNumber: must not be blank"
                 ),
                 response.getBody().getErrors()
+        );
+    }
+
+    @Test
+    void handleTypeMismatch_shouldReturn400() {
+
+        MethodArgumentTypeMismatchException exception =
+                new MethodArgumentTypeMismatchException(
+                        "INVALID",
+                        ContractStatus.class,
+                        "status",
+                        null,
+                        new IllegalArgumentException()
+                );
+
+        ResponseEntity<ErrorResponse> response =
+                handler.handleTypeMismatch(exception);
+
+        assertEquals(400, response.getStatusCode().value());
+
+        assertNotNull(response.getBody());
+
+        assertEquals(400, response.getBody().getStatus());
+
+        assertEquals(
+                "Invalid value 'INVALID' for parameter 'status'",
+                response.getBody().getMessage()
         );
     }
 }
