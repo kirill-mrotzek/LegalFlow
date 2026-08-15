@@ -390,4 +390,58 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$[0].title").value("NDA"))
                 .andExpect(jsonPath("$[0].counterparty").value("Google"));
     }
+
+    @Test
+    void getAllContracts_shouldFilterByStatusAndCounterparty() throws Exception {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Google NDA");
+        contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setCounterparty("Google");
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Google Service Agreement");
+        contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setCounterparty("Google Cloud");
+
+        ContractResponse response1 = new ContractResponse();
+        response1.setId(1L);
+        response1.setTitle("Google NDA");
+        response1.setContractStatus(ContractStatus.ACTIVE);
+        response1.setCounterparty("Google");
+
+        ContractResponse response2 = new ContractResponse();
+        response2.setId(2L);
+        response2.setTitle("Google Service Agreement");
+        response2.setContractStatus(ContractStatus.ACTIVE);
+        response2.setCounterparty("Google Cloud");
+
+        when(contractService.findByStatusAndCounterparty(
+                ContractStatus.ACTIVE,
+                "google"))
+                .thenReturn(List.of(contract1, contract2));
+
+        when(contractMapper.toResponse(contract1))
+                .thenReturn(response1);
+
+        when(contractMapper.toResponse(contract2))
+                .thenReturn(response2);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("status", "ACTIVE")
+                                .param("counterparty", "google")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].title").value("Google NDA"))
+                .andExpect(jsonPath("$[0].contractStatus").value("ACTIVE"))
+                .andExpect(jsonPath("$[0].counterparty").value("Google"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].title").value("Google Service Agreement"))
+                .andExpect(jsonPath("$[1].contractStatus").value("ACTIVE"))
+                .andExpect(jsonPath("$[1].counterparty").value("Google Cloud"));
+    }
 }

@@ -11,4 +11,9 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     List<Contract> findByContractStatus(ContractStatus contractStatus);
 
     List<Contract> findByCounterpartyContainingIgnoreCase(String counterparty);
+
+    List<Contract> findByContractStatusAndCounterpartyContainingIgnoreCase(
+            ContractStatus contractStatus,
+            String counterparty
+    );
 }

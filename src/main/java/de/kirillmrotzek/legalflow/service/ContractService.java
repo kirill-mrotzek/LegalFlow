@@ -31,6 +31,17 @@ public class ContractService {
         return contractRepository.findByCounterpartyContainingIgnoreCase(counterparty);
     }
 
+    public List<Contract> findByStatusAndCounterparty(
+            ContractStatus status,
+            String counterparty) {
+
+        return contractRepository
+                .findByContractStatusAndCounterpartyContainingIgnoreCase(
+                        status,
+                        counterparty
+                );
+    }
+
     public Contract findById(Long id) {
         return contractRepository.findById(id)
                 .orElseThrow(() -> new ContractNotFoundException(id));

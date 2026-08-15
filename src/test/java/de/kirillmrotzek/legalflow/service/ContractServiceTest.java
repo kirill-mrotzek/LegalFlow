@@ -215,4 +215,35 @@ class ContractServiceTest {
         assertSame(contract1, result.get(0));
         assertSame(contract2, result.get(1));
     }
+
+    @Test
+    void findByStatusAndCounterparty_shouldReturnMatchingContracts() {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Google NDA");
+        contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setCounterparty("Google");
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Google Service Agreement");
+        contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setCounterparty("Google Cloud");
+
+        when(contractRepository
+                .findByContractStatusAndCounterpartyContainingIgnoreCase(
+                        ContractStatus.ACTIVE,
+                        "google"))
+                .thenReturn(List.of(contract1, contract2));
+
+        List<Contract> result =
+                contractService.findByStatusAndCounterparty(
+                        ContractStatus.ACTIVE,
+                        "google");
+
+        assertEquals(2, result.size());
+        assertSame(contract1, result.get(0));
+        assertSame(contract2, result.get(1));
+    }
 }

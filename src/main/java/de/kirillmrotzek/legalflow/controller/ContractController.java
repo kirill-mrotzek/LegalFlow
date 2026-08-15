@@ -29,7 +29,12 @@ public class ContractController {
 
         List<Contract> contracts;
 
-        if (status != null) {
+        if (status != null && counterparty != null) {
+            contracts = contractService.findByStatusAndCounterparty(
+                    status,
+                    counterparty
+            );
+        } else if (status != null) {
             contracts = contractService.findByStatus(status);
         } else if (counterparty != null) {
             contracts = contractService.findByCounterparty(counterparty);
