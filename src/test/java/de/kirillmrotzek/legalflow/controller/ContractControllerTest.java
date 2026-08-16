@@ -30,6 +30,11 @@ import static org.mockito.Mockito.doThrow;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import static org.mockito.ArgumentMatchers.eq;
+
 @WebMvcTest(ContractController.class)
 class ContractControllerTest {
 
@@ -303,8 +308,11 @@ class ContractControllerTest {
         response2.setId(2L);
         response2.setTitle("Service Agreement");
 
-        when(contractService.findAll())
-                .thenReturn(List.of(contract1, contract2));
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
+        when(contractService.findAll(any(Pageable.class)))
+                .thenReturn(contractPage);
 
         when(contractMapper.toResponse(contract1))
                 .thenReturn(response1);
@@ -312,12 +320,17 @@ class ContractControllerTest {
         when(contractMapper.toResponse(contract2))
                 .thenReturn(response2);
 
-        mockMvc.perform(get("/contracts"))
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].title").value("NDA"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].title").value("Service Agreement"));
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("NDA"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].title")
+                        .value("Service Agreement"));
     }
 
     @Test
@@ -333,8 +346,13 @@ class ContractControllerTest {
         response1.setTitle("Active NDA");
         response1.setContractStatus(ContractStatus.ACTIVE);
 
-        when(contractService.findByStatus(ContractStatus.ACTIVE))
-                .thenReturn(List.of(contract1));
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1));
+
+        when(contractService.findByStatus(
+                eq(ContractStatus.ACTIVE),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
 
         when(contractMapper.toResponse(contract1))
                 .thenReturn(response1);
@@ -342,11 +360,14 @@ class ContractControllerTest {
         mockMvc.perform(
                         get("/contracts")
                                 .param("status", "ACTIVE")
+                                .param("page", "0")
+                                .param("size", "10")
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].title").value("Active NDA"))
-                .andExpect(jsonPath("$[0].contractStatus").value("ACTIVE"));
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("Active NDA"))
+                .andExpect(jsonPath("$.content[0].contractStatus")
+                        .value("ACTIVE"));
     }
 
     @Test
@@ -375,8 +396,13 @@ class ContractControllerTest {
         response.setTitle("NDA");
         response.setCounterparty("Google");
 
-        when(contractService.findByCounterparty("google"))
-                .thenReturn(List.of(contract));
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.findByCounterparty(
+                eq("google"),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
 
         when(contractMapper.toResponse(contract))
                 .thenReturn(response);
@@ -384,11 +410,14 @@ class ContractControllerTest {
         mockMvc.perform(
                         get("/contracts")
                                 .param("counterparty", "google")
+                                .param("page", "0")
+                                .param("size", "10")
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].title").value("NDA"))
-                .andExpect(jsonPath("$[0].counterparty").value("Google"));
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("NDA"))
+                .andExpect(jsonPath("$.content[0].counterparty")
+                        .value("Google"));
     }
 
     @Test
@@ -418,10 +447,14 @@ class ContractControllerTest {
         response2.setContractStatus(ContractStatus.ACTIVE);
         response2.setCounterparty("Google Cloud");
 
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
         when(contractService.findByStatusAndCounterparty(
-                ContractStatus.ACTIVE,
-                "google"))
-                .thenReturn(List.of(contract1, contract2));
+                eq(ContractStatus.ACTIVE),
+                eq("google"),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
 
         when(contractMapper.toResponse(contract1))
                 .thenReturn(response1);
@@ -433,15 +466,23 @@ class ContractControllerTest {
                         get("/contracts")
                                 .param("status", "ACTIVE")
                                 .param("counterparty", "google")
+                                .param("page", "0")
+                                .param("size", "10")
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].title").value("Google NDA"))
-                .andExpect(jsonPath("$[0].contractStatus").value("ACTIVE"))
-                .andExpect(jsonPath("$[0].counterparty").value("Google"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].title").value("Google Service Agreement"))
-                .andExpect(jsonPath("$[1].contractStatus").value("ACTIVE"))
-                .andExpect(jsonPath("$[1].counterparty").value("Google Cloud"));
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Google NDA"))
+                .andExpect(jsonPath("$.content[0].contractStatus")
+                        .value("ACTIVE"))
+                .andExpect(jsonPath("$.content[0].counterparty")
+                        .value("Google"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].title")
+                        .value("Google Service Agreement"))
+                .andExpect(jsonPath("$.content[1].contractStatus")
+                        .value("ACTIVE"))
+                .andExpect(jsonPath("$.content[1].counterparty")
+                        .value("Google Cloud"));
     }
 }

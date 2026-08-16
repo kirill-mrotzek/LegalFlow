@@ -7,14 +7,19 @@ import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class ContractServiceTest {
@@ -81,14 +86,18 @@ class ContractServiceTest {
         contract2.setId(2L);
         contract2.setTitle("Service Agreement");
 
-        when(contractRepository.findAll())
-                .thenReturn(List.of(contract1, contract2));
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
 
-        List<Contract> result = contractService.findAll();
+        when(contractRepository.findAll(any(Pageable.class)))
+                .thenReturn(contractPage);
 
-        assertEquals(2, result.size());
-        assertSame(contract1, result.get(0));
-        assertSame(contract2, result.get(1));
+        Page<Contract> result =
+                contractService.findAll(Pageable.unpaged());
+
+        assertEquals(2, result.getContent().size());
+        assertSame(contract1, result.getContent().get(0));
+        assertSame(contract2, result.getContent().get(1));
     }
 
     @Test
@@ -117,13 +126,23 @@ class ContractServiceTest {
         when(contractRepository.save(existingContract))
                 .thenReturn(savedContract);
 
-        Contract result = contractService.update(1L, newContract);
+        Contract result =
+                contractService.update(1L, newContract);
 
         assertSame(savedContract, result);
 
-        assertEquals("Updated NDA", existingContract.getTitle());
-        assertEquals("NDA-002", existingContract.getContractNumber());
-        assertEquals("Microsoft", existingContract.getCounterparty());
+        assertEquals(
+                "Updated NDA",
+                existingContract.getTitle()
+        );
+        assertEquals(
+                "NDA-002",
+                existingContract.getContractNumber()
+        );
+        assertEquals(
+                "Microsoft",
+                existingContract.getCounterparty()
+        );
     }
 
     @Test
@@ -181,15 +200,29 @@ class ContractServiceTest {
         contract2.setTitle("Active Service Agreement");
         contract2.setContractStatus(ContractStatus.ACTIVE);
 
-        when(contractRepository.findByContractStatus(ContractStatus.ACTIVE))
-                .thenReturn(List.of(contract1, contract2));
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
 
-        List<Contract> result =
-                contractService.findByStatus(ContractStatus.ACTIVE);
+        when(contractRepository.findByContractStatus(
+                eq(ContractStatus.ACTIVE),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
 
-        assertEquals(2, result.size());
-        assertSame(contract1, result.get(0));
-        assertSame(contract2, result.get(1));
+        Page<Contract> result =
+                contractService.findByStatus(
+                        ContractStatus.ACTIVE,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(2, result.getContent().size());
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
     }
 
     @Test
@@ -205,15 +238,29 @@ class ContractServiceTest {
         contract2.setTitle("Service Agreement");
         contract2.setCounterparty("Google Cloud");
 
-        when(contractRepository.findByCounterpartyContainingIgnoreCase("google"))
-                .thenReturn(List.of(contract1, contract2));
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
 
-        List<Contract> result =
-                contractService.findByCounterparty("google");
+        when(contractRepository.findByCounterpartyContainingIgnoreCase(
+                eq("google"),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
 
-        assertEquals(2, result.size());
-        assertSame(contract1, result.get(0));
-        assertSame(contract2, result.get(1));
+        Page<Contract> result =
+                contractService.findByCounterparty(
+                        "google",
+                        Pageable.unpaged()
+                );
+
+        assertEquals(2, result.getContent().size());
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
     }
 
     @Test
@@ -231,19 +278,31 @@ class ContractServiceTest {
         contract2.setContractStatus(ContractStatus.ACTIVE);
         contract2.setCounterparty("Google Cloud");
 
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
         when(contractRepository
                 .findByContractStatusAndCounterpartyContainingIgnoreCase(
-                        ContractStatus.ACTIVE,
-                        "google"))
-                .thenReturn(List.of(contract1, contract2));
+                        eq(ContractStatus.ACTIVE),
+                        eq("google"),
+                        any(Pageable.class)))
+                .thenReturn(contractPage);
 
-        List<Contract> result =
+        Page<Contract> result =
                 contractService.findByStatusAndCounterparty(
                         ContractStatus.ACTIVE,
-                        "google");
+                        "google",
+                        Pageable.unpaged()
+                );
 
-        assertEquals(2, result.size());
-        assertSame(contract1, result.get(0));
-        assertSame(contract2, result.get(1));
+        assertEquals(2, result.getContent().size());
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
     }
 }

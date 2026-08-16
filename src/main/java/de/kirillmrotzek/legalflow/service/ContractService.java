@@ -5,9 +5,9 @@ import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,26 +19,40 @@ public class ContractService {
         return contractRepository.save(contract);
     }
 
-    public List<Contract> findAll() {
-        return contractRepository.findAll();
+    public Page<Contract> findAll(Pageable pageable) {
+        return contractRepository.findAll(pageable);
     }
 
-    public List<Contract> findByStatus(ContractStatus status) {
-        return contractRepository.findByContractStatus(status);
-    }
-
-    public List<Contract> findByCounterparty(String counterparty) {
-        return contractRepository.findByCounterpartyContainingIgnoreCase(counterparty);
-    }
-
-    public List<Contract> findByStatusAndCounterparty(
+    public Page<Contract> findByStatus(
             ContractStatus status,
-            String counterparty) {
+            Pageable pageable) {
+
+        return contractRepository.findByContractStatus(
+                status,
+                pageable
+        );
+    }
+
+    public Page<Contract> findByCounterparty(
+            String counterparty,
+            Pageable pageable) {
+
+        return contractRepository.findByCounterpartyContainingIgnoreCase(
+                counterparty,
+                pageable
+        );
+    }
+
+    public Page<Contract> findByStatusAndCounterparty(
+            ContractStatus status,
+            String counterparty,
+            Pageable pageable) {
 
         return contractRepository
                 .findByContractStatusAndCounterpartyContainingIgnoreCase(
                         status,
-                        counterparty
+                        counterparty,
+                        pageable
                 );
     }
 
@@ -49,6 +63,7 @@ public class ContractService {
 
     public Contract update(Long id, Contract contract) {
         Contract existingContract = findById(id);
+
         existingContract.setTitle(contract.getTitle());
         existingContract.setContractNumber(contract.getContractNumber());
         existingContract.setCounterparty(contract.getCounterparty());
@@ -60,6 +75,7 @@ public class ContractService {
         existingContract.setGoverningLaw(contract.getGoverningLaw());
         existingContract.setContractValue(contract.getContractValue());
         existingContract.setAutoRenewal(contract.getAutoRenewal());
+
         return contractRepository.save(existingContract);
     }
 

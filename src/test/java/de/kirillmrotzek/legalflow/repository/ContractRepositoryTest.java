@@ -13,8 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.springframework.dao.DataIntegrityViolationException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -149,12 +152,21 @@ class ContractRepositoryTest {
         contractRepository.save(activeContract);
         contractRepository.save(draftContract);
 
-        List<Contract> result =
-                contractRepository.findByContractStatus(ContractStatus.ACTIVE);
+        Page<Contract> result =
+                contractRepository.findByContractStatus(
+                        ContractStatus.ACTIVE,
+                        Pageable.unpaged()
+                );
 
-        assertEquals(1, result.size());
-        assertEquals("Active NDA", result.get(0).getTitle());
-        assertEquals(ContractStatus.ACTIVE, result.get(0).getContractStatus());
+        assertEquals(1, result.getContent().size());
+        assertEquals(
+                "Active NDA",
+                result.getContent().get(0).getTitle()
+        );
+        assertEquals(
+                ContractStatus.ACTIVE,
+                result.getContent().get(0).getContractStatus()
+        );
     }
 
     @Test
@@ -183,11 +195,20 @@ class ContractRepositoryTest {
         contractRepository.save(contract1);
         contractRepository.save(contract2);
 
-        List<Contract> result =
-                contractRepository.findByCounterpartyContainingIgnoreCase("google");
+        Page<Contract> result =
+                contractRepository.findByCounterpartyContainingIgnoreCase(
+                        "google",
+                        Pageable.unpaged()
+                );
 
-        assertEquals(1, result.size());
-        assertEquals("Google", result.get(0).getCounterparty());
-        assertEquals("NDA", result.get(0).getTitle());
+        assertEquals(1, result.getContent().size());
+        assertEquals(
+                "Google",
+                result.getContent().get(0).getCounterparty()
+        );
+        assertEquals(
+                "NDA",
+                result.getContent().get(0).getTitle()
+        );
     }
 }
