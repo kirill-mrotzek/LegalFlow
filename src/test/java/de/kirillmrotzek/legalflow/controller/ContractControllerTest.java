@@ -485,4 +485,126 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.content[1].counterparty")
                         .value("Google Cloud"));
     }
+
+    @Test
+    void getAllContracts_shouldSortByTitleAscending() throws Exception {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Alpha Service Agreement");
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Microsoft License");
+
+        Contract contract3 = new Contract();
+        contract3.setId(3L);
+        contract3.setTitle("Zeta NDA");
+
+        ContractResponse response1 = new ContractResponse();
+        response1.setId(1L);
+        response1.setTitle("Alpha Service Agreement");
+
+        ContractResponse response2 = new ContractResponse();
+        response2.setId(2L);
+        response2.setTitle("Microsoft License");
+
+        ContractResponse response3 = new ContractResponse();
+        response3.setId(3L);
+        response3.setTitle("Zeta NDA");
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(
+                        contract1,
+                        contract2,
+                        contract3
+                ));
+
+        when(contractService.findAll(any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract1))
+                .thenReturn(response1);
+
+        when(contractMapper.toResponse(contract2))
+                .thenReturn(response2);
+
+        when(contractMapper.toResponse(contract3))
+                .thenReturn(response3);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .param("sort", "title,asc")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Alpha Service Agreement"))
+                .andExpect(jsonPath("$.content[1].title")
+                        .value("Microsoft License"))
+                .andExpect(jsonPath("$.content[2].title")
+                        .value("Zeta NDA"));
+    }
+
+    @Test
+    void getAllContracts_shouldSortByTitleDescending() throws Exception {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Zeta NDA");
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Microsoft License");
+
+        Contract contract3 = new Contract();
+        contract3.setId(3L);
+        contract3.setTitle("Alpha Service Agreement");
+
+        ContractResponse response1 = new ContractResponse();
+        response1.setId(1L);
+        response1.setTitle("Zeta NDA");
+
+        ContractResponse response2 = new ContractResponse();
+        response2.setId(2L);
+        response2.setTitle("Microsoft License");
+
+        ContractResponse response3 = new ContractResponse();
+        response3.setId(3L);
+        response3.setTitle("Alpha Service Agreement");
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(
+                        contract1,
+                        contract2,
+                        contract3
+                ));
+
+        when(contractService.findAll(any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract1))
+                .thenReturn(response1);
+
+        when(contractMapper.toResponse(contract2))
+                .thenReturn(response2);
+
+        when(contractMapper.toResponse(contract3))
+                .thenReturn(response3);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .param("sort", "title,desc")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Zeta NDA"))
+                .andExpect(jsonPath("$.content[1].title")
+                        .value("Microsoft License"))
+                .andExpect(jsonPath("$.content[2].title")
+                        .value("Alpha Service Agreement"));
+    }
 }
