@@ -3,6 +3,8 @@ package de.kirillmrotzek.legalflow.controller;
 import de.kirillmrotzek.legalflow.dto.ContractRequest;
 import de.kirillmrotzek.legalflow.dto.ContractResponse;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
+import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.service.ContractService;
@@ -13,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/contracts")
@@ -25,30 +30,30 @@ public class ContractController {
     @GetMapping
     public Page<ContractResponse> getAllContracts(
             @RequestParam(required = false) ContractStatus status,
+            @RequestParam(required = false) ContractType type,
+            @RequestParam(required = false) RiskLevel riskLevel,
             @RequestParam(required = false) String counterparty,
+            @RequestParam(required = false) BigDecimal minValue,
+            @RequestParam(required = false) BigDecimal maxValue,
+            @RequestParam(required = false) LocalDate startDateFrom,
+            @RequestParam(required = false) LocalDate startDateTo,
+            @RequestParam(required = false) LocalDate endDateFrom,
+            @RequestParam(required = false) LocalDate endDateTo,
             Pageable pageable) {
 
-        Page<Contract> contracts;
-
-        if (status != null && counterparty != null) {
-            contracts = contractService.findByStatusAndCounterparty(
-                    status,
-                    counterparty,
-                    pageable
-            );
-        } else if (status != null) {
-            contracts = contractService.findByStatus(
-                    status,
-                    pageable
-            );
-        } else if (counterparty != null) {
-            contracts = contractService.findByCounterparty(
-                    counterparty,
-                    pageable
-            );
-        } else {
-            contracts = contractService.findAll(pageable);
-        }
+        Page<Contract> contracts = contractService.search(
+                status,
+                type,
+                riskLevel,
+                counterparty,
+                minValue,
+                maxValue,
+                startDateFrom,
+                startDateTo,
+                endDateFrom,
+                endDateTo,
+                pageable
+        );
 
         return contracts.map(contractMapper::toResponse);
     }

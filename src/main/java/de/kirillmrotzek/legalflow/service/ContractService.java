@@ -1,13 +1,20 @@
 package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
+import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
+import de.kirillmrotzek.legalflow.specification.ContractSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -19,41 +26,86 @@ public class ContractService {
         return contractRepository.save(contract);
     }
 
-    public Page<Contract> findAll(Pageable pageable) {
-        return contractRepository.findAll(pageable);
-    }
-
-    public Page<Contract> findByStatus(
+    public Page<Contract> search(
             ContractStatus status,
+            ContractType type,
+            RiskLevel riskLevel,
+            String counterparty,
+            BigDecimal minValue,
+            BigDecimal maxValue,
+            LocalDate startDateFrom,
+            LocalDate startDateTo,
+            LocalDate endDateFrom,
+            LocalDate endDateTo,
             Pageable pageable) {
 
-        return contractRepository.findByContractStatus(
-                status,
+        Specification<Contract> specification =
+                Specification.allOf();
+
+        if (status != null) {
+            specification = specification.and(
+                    ContractSpecification.hasStatus(status)
+            );
+        }
+
+        if (type != null) {
+            specification = specification.and(
+                    ContractSpecification.hasType(type)
+            );
+        }
+
+        if (riskLevel != null) {
+            specification = specification.and(
+                    ContractSpecification.hasRiskLevel(riskLevel)
+            );
+        }
+
+        if (counterparty != null && !counterparty.isBlank()) {
+            specification = specification.and(
+                    ContractSpecification.counterpartyContains(counterparty)
+            );
+        }
+
+        if (minValue != null) {
+            specification = specification.and(
+                    ContractSpecification.contractValueGreaterThanOrEqualTo(minValue)
+            );
+        }
+
+        if (maxValue != null) {
+            specification = specification.and(
+                    ContractSpecification.contractValueLessThanOrEqualTo(maxValue)
+            );
+        }
+
+        if (startDateFrom != null) {
+            specification = specification.and(
+                    ContractSpecification.startDateGreaterThanOrEqualTo(startDateFrom)
+            );
+        }
+
+        if (startDateTo != null) {
+            specification = specification.and(
+                    ContractSpecification.startDateLessThanOrEqualTo(startDateTo)
+            );
+        }
+
+        if (endDateFrom != null) {
+            specification = specification.and(
+                    ContractSpecification.endDateGreaterThanOrEqualTo(endDateFrom)
+            );
+        }
+
+        if (endDateTo != null) {
+            specification = specification.and(
+                    ContractSpecification.endDateLessThanOrEqualTo(endDateTo)
+            );
+        }
+
+        return contractRepository.findAll(
+                specification,
                 pageable
         );
-    }
-
-    public Page<Contract> findByCounterparty(
-            String counterparty,
-            Pageable pageable) {
-
-        return contractRepository.findByCounterpartyContainingIgnoreCase(
-                counterparty,
-                pageable
-        );
-    }
-
-    public Page<Contract> findByStatusAndCounterparty(
-            ContractStatus status,
-            String counterparty,
-            Pageable pageable) {
-
-        return contractRepository
-                .findByContractStatusAndCounterpartyContainingIgnoreCase(
-                        status,
-                        counterparty,
-                        pageable
-                );
     }
 
     public Contract findById(Long id) {

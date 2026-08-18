@@ -1,6 +1,8 @@
 package de.kirillmrotzek.legalflow.controller;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
+import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
 import de.kirillmrotzek.legalflow.service.ContractService;
 import org.junit.jupiter.api.Test;
@@ -11,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import de.kirillmrotzek.legalflow.dto.ContractResponse;
 import de.kirillmrotzek.legalflow.model.Contract;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,12 +30,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doThrow;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import static org.mockito.ArgumentMatchers.eq;
 
 @WebMvcTest(ContractController.class)
 class ContractControllerTest {
@@ -311,7 +313,18 @@ class ContractControllerTest {
         Page<Contract> contractPage =
                 new PageImpl<>(List.of(contract1, contract2));
 
-        when(contractService.findAll(any(Pageable.class)))
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
                 .thenReturn(contractPage);
 
         when(contractMapper.toResponse(contract1))
@@ -349,8 +362,17 @@ class ContractControllerTest {
         Page<Contract> contractPage =
                 new PageImpl<>(List.of(contract1));
 
-        when(contractService.findByStatus(
+        when(contractService.search(
                 eq(ContractStatus.ACTIVE),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
                 any(Pageable.class)))
                 .thenReturn(contractPage);
 
@@ -399,8 +421,17 @@ class ContractControllerTest {
         Page<Contract> contractPage =
                 new PageImpl<>(List.of(contract));
 
-        when(contractService.findByCounterparty(
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
                 eq("google"),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
                 any(Pageable.class)))
                 .thenReturn(contractPage);
 
@@ -418,6 +449,102 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.content[0].title").value("NDA"))
                 .andExpect(jsonPath("$.content[0].counterparty")
                         .value("Google"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByContractType() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("Google NDA");
+        contract.setContractType(ContractType.NDA);
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("Google NDA");
+        response.setContractType(ContractType.NDA);
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                eq(ContractType.NDA),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("type", "NDA")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id")
+                        .value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Google NDA"))
+                .andExpect(jsonPath("$.content[0].contractType")
+                        .value("NDA"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByRiskLevel() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("High Risk NDA");
+        contract.setRiskLevel(RiskLevel.HIGH);
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("High Risk NDA");
+        response.setRiskLevel(RiskLevel.HIGH);
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                eq(RiskLevel.HIGH),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("riskLevel", "HIGH")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id")
+                        .value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("High Risk NDA"))
+                .andExpect(jsonPath("$.content[0].riskLevel")
+                        .value("HIGH"));
     }
 
     @Test
@@ -450,9 +577,17 @@ class ContractControllerTest {
         Page<Contract> contractPage =
                 new PageImpl<>(List.of(contract1, contract2));
 
-        when(contractService.findByStatusAndCounterparty(
+        when(contractService.search(
                 eq(ContractStatus.ACTIVE),
+                isNull(),
+                isNull(),
                 eq("google"),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
                 any(Pageable.class)))
                 .thenReturn(contractPage);
 
@@ -520,7 +655,18 @@ class ContractControllerTest {
                         contract3
                 ));
 
-        when(contractService.findAll(any(Pageable.class)))
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
                 .thenReturn(contractPage);
 
         when(contractMapper.toResponse(contract1))
@@ -537,6 +683,7 @@ class ContractControllerTest {
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("sort", "title,asc")
+
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title")
@@ -581,7 +728,18 @@ class ContractControllerTest {
                         contract3
                 ));
 
-        when(contractService.findAll(any(Pageable.class)))
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
                 .thenReturn(contractPage);
 
         when(contractMapper.toResponse(contract1))
@@ -606,5 +764,147 @@ class ContractControllerTest {
                         .value("Microsoft License"))
                 .andExpect(jsonPath("$.content[2].title")
                         .value("Alpha Service Agreement"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByMinValue() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("High Value NDA");
+        contract.setContractValue(new BigDecimal("50000"));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("High Value NDA");
+        response.setContractValue(new BigDecimal("50000"));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(new BigDecimal("10000")),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("minValue", "10000")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("High Value NDA"))
+                .andExpect(jsonPath("$.content[0].contractValue")
+                        .value(50000));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByMaxValue() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("Small NDA");
+        contract.setContractValue(new BigDecimal("5000"));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("Small NDA");
+        response.setContractValue(new BigDecimal("5000"));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(new BigDecimal("10000")),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("maxValue", "10000")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Small NDA"))
+                .andExpect(jsonPath("$.content[0].contractValue")
+                        .value(5000));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByMinAndMaxValue() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("Medium Value NDA");
+        contract.setContractValue(new BigDecimal("25000"));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("Medium Value NDA");
+        response.setContractValue(new BigDecimal("25000"));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(new BigDecimal("10000")),
+                eq(new BigDecimal("50000")),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("minValue", "10000")
+                                .param("maxValue", "50000")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Medium Value NDA"))
+                .andExpect(jsonPath("$.content[0].contractValue")
+                        .value(25000));
     }
 }

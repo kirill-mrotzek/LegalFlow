@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
+import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
@@ -10,16 +11,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import de.kirillmrotzek.legalflow.enums.RiskLevel;
 
 @SpringBootTest
 class ContractServiceTest {
@@ -76,7 +80,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void findAll_shouldReturnContracts() {
+    void search_withoutFilters_shouldReturnAllContracts() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -89,15 +93,361 @@ class ContractServiceTest {
         Page<Contract> contractPage =
                 new PageImpl<>(List.of(contract1, contract2));
 
-        when(contractRepository.findAll(any(Pageable.class)))
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
                 .thenReturn(contractPage);
 
         Page<Contract> result =
-                contractService.findAll(Pageable.unpaged());
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
 
         assertEquals(2, result.getContent().size());
-        assertSame(contract1, result.getContent().get(0));
-        assertSame(contract2, result.getContent().get(1));
+
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byStatus_shouldReturnMatchingContracts() {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Active NDA");
+        contract1.setContractStatus(ContractStatus.ACTIVE);
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Active Service Agreement");
+        contract2.setContractStatus(ContractStatus.ACTIVE);
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        ContractStatus.ACTIVE,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(2, result.getContent().size());
+
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byCounterparty_shouldReturnMatchingContracts() {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("NDA");
+        contract1.setCounterparty("Google");
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Service Agreement");
+        contract2.setCounterparty("Google Cloud");
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        "google",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(2, result.getContent().size());
+
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byType_shouldReturnMatchingContracts() {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Google NDA");
+        contract1.setContractType(ContractType.NDA);
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Microsoft NDA");
+        contract2.setContractType(ContractType.NDA);
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        ContractType.NDA,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(2, result.getContent().size());
+
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byRiskLevel_shouldReturnMatchingContracts() {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("High Risk NDA");
+        contract1.setRiskLevel(RiskLevel.HIGH);
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("High Risk Service Agreement");
+        contract2.setRiskLevel(RiskLevel.HIGH);
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        RiskLevel.HIGH,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(2, result.getContent().size());
+
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byStatusAndCounterparty_shouldReturnMatchingContracts() {
+
+        Contract contract1 = new Contract();
+        contract1.setId(1L);
+        contract1.setTitle("Google NDA");
+        contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setCounterparty("Google");
+
+        Contract contract2 = new Contract();
+        contract2.setId(2L);
+        contract2.setTitle("Google Service Agreement");
+        contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setCounterparty("Google Cloud");
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract1, contract2));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        ContractStatus.ACTIVE,
+                        null,
+                        null,
+                        "google",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(2, result.getContent().size());
+
+        assertSame(
+                contract1,
+                result.getContent().get(0)
+        );
+
+        assertSame(
+                contract2,
+                result.getContent().get(1)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_withAllFilters_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("Google NDA");
+        contract.setContractStatus(ContractStatus.ACTIVE);
+        contract.setContractType(ContractType.NDA);
+        contract.setRiskLevel(RiskLevel.HIGH);
+        contract.setCounterparty("Google");
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        ContractStatus.ACTIVE,
+                        ContractType.NDA,
+                        RiskLevel.HIGH,
+                        "google",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
+        assertSame(
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
     }
 
     @Test
@@ -135,10 +485,12 @@ class ContractServiceTest {
                 "Updated NDA",
                 existingContract.getTitle()
         );
+
         assertEquals(
                 "NDA-002",
                 existingContract.getContractNumber()
         );
+
         assertEquals(
                 "Microsoft",
                 existingContract.getCounterparty()
@@ -188,121 +540,468 @@ class ContractServiceTest {
     }
 
     @Test
-    void findByStatus_shouldReturnContractsWithGivenStatus() {
+    void search_byMinValue_shouldReturnMatchingContracts() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
-        contract1.setTitle("Active NDA");
-        contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setTitle("Small Service Agreement");
+        contract1.setContractValue(new BigDecimal("15000"));
 
         Contract contract2 = new Contract();
         contract2.setId(2L);
-        contract2.setTitle("Active Service Agreement");
-        contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setTitle("Large Service Agreement");
+        contract2.setContractValue(new BigDecimal("50000"));
 
         Page<Contract> contractPage =
                 new PageImpl<>(List.of(contract1, contract2));
 
-        when(contractRepository.findByContractStatus(
-                eq(ContractStatus.ACTIVE),
+        when(contractRepository.findAll(
+                any(Specification.class),
                 any(Pageable.class)))
                 .thenReturn(contractPage);
 
         Page<Contract> result =
-                contractService.findByStatus(
-                        ContractStatus.ACTIVE,
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        new BigDecimal("10000"),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
                         Pageable.unpaged()
                 );
 
         assertEquals(2, result.getContent().size());
+
         assertSame(
                 contract1,
                 result.getContent().get(0)
         );
+
         assertSame(
                 contract2,
                 result.getContent().get(1)
         );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
     }
 
     @Test
-    void findByCounterparty_shouldReturnMatchingContracts() {
+    void search_byMaxValue_shouldReturnMatchingContracts() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
-        contract1.setTitle("NDA");
-        contract1.setCounterparty("Google");
+        contract1.setTitle("Small Service Agreement");
+        contract1.setContractValue(new BigDecimal("15000"));
 
         Contract contract2 = new Contract();
         contract2.setId(2L);
-        contract2.setTitle("Service Agreement");
-        contract2.setCounterparty("Google Cloud");
+        contract2.setTitle("Medium Service Agreement");
+        contract2.setContractValue(new BigDecimal("30000"));
 
         Page<Contract> contractPage =
                 new PageImpl<>(List.of(contract1, contract2));
 
-        when(contractRepository.findByCounterpartyContainingIgnoreCase(
-                eq("google"),
+        when(contractRepository.findAll(
+                any(Specification.class),
                 any(Pageable.class)))
                 .thenReturn(contractPage);
 
         Page<Contract> result =
-                contractService.findByCounterparty(
-                        "google",
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        new BigDecimal("50000"),
+                        null,
+                        null,
+                        null,
+                        null,
                         Pageable.unpaged()
                 );
 
         assertEquals(2, result.getContent().size());
+
         assertSame(
                 contract1,
                 result.getContent().get(0)
         );
+
         assertSame(
                 contract2,
                 result.getContent().get(1)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
         );
     }
 
     @Test
-    void findByStatusAndCounterparty_shouldReturnMatchingContracts() {
+    void search_byMinAndMaxValue_shouldReturnMatchingContracts() {
 
-        Contract contract1 = new Contract();
-        contract1.setId(1L);
-        contract1.setTitle("Google NDA");
-        contract1.setContractStatus(ContractStatus.ACTIVE);
-        contract1.setCounterparty("Google");
-
-        Contract contract2 = new Contract();
-        contract2.setId(2L);
-        contract2.setTitle("Google Service Agreement");
-        contract2.setContractStatus(ContractStatus.ACTIVE);
-        contract2.setCounterparty("Google Cloud");
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("Enterprise Service Agreement");
+        contract.setContractValue(new BigDecimal("30000"));
 
         Page<Contract> contractPage =
-                new PageImpl<>(List.of(contract1, contract2));
+                new PageImpl<>(List.of(contract));
 
-        when(contractRepository
-                .findByContractStatusAndCounterpartyContainingIgnoreCase(
-                        eq(ContractStatus.ACTIVE),
-                        eq("google"),
-                        any(Pageable.class)))
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
                 .thenReturn(contractPage);
 
         Page<Contract> result =
-                contractService.findByStatusAndCounterparty(
-                        ContractStatus.ACTIVE,
-                        "google",
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        new BigDecimal("10000"),
+                        new BigDecimal("50000"),
+                        null,
+                        null,
+                        null,
+                        null,
                         Pageable.unpaged()
                 );
 
-        assertEquals(2, result.getContent().size());
+        assertEquals(1, result.getContent().size());
+
         assertSame(
-                contract1,
+                contract,
                 result.getContent().get(0)
         );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byStartDateFrom_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setStartDate(LocalDate.of(2026, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        LocalDate.of(2026, 1, 1),
+                        null,
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
         assertSame(
-                contract2,
-                result.getContent().get(1)
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byStartDateTo_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setStartDate(LocalDate.of(2026, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        LocalDate.of(2026, 12, 31),
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
+        assertSame(
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byEndDateFrom_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        LocalDate.of(2027, 1, 1),
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
+        assertSame(
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byEndDateTo_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        LocalDate.of(2027, 12, 31),
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
+        assertSame(
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byStartDateRange_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setStartDate(LocalDate.of(2026, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        LocalDate.of(2026, 1, 1),
+                        LocalDate.of(2026, 12, 31),
+                        null,
+                        null,
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
+        assertSame(
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_byEndDateRange_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        LocalDate.of(2027, 1, 1),
+                        LocalDate.of(2027, 12, 31),
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
+        assertSame(
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_withAllFiltersIncludingDates_shouldReturnMatchingContracts() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("Google NDA");
+        contract.setContractStatus(ContractStatus.ACTIVE);
+        contract.setContractType(ContractType.NDA);
+        contract.setRiskLevel(RiskLevel.HIGH);
+        contract.setCounterparty("Google");
+        contract.setContractValue(new BigDecimal("25000"));
+        contract.setStartDate(LocalDate.of(2026, 6, 1));
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        ContractStatus.ACTIVE,
+                        ContractType.NDA,
+                        RiskLevel.HIGH,
+                        "google",
+                        new BigDecimal("10000"),
+                        new BigDecimal("50000"),
+                        LocalDate.of(2026, 1, 1),
+                        LocalDate.of(2026, 12, 31),
+                        LocalDate.of(2027, 1, 1),
+                        LocalDate.of(2027, 12, 31),
+                        Pageable.unpaged()
+                );
+
+        assertEquals(1, result.getContent().size());
+
+        assertSame(
+                contract,
+                result.getContent().get(0)
+        );
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                any(Pageable.class)
         );
     }
 }
