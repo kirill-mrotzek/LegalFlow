@@ -14,11 +14,13 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ContractNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleContractNotFound(ContractNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleContractNotFound(
+            ContractNotFoundException ex) {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(),
+                .body(new ErrorResponse(
+                        HttpStatus.NOT_FOUND.value(),
                         ex.getMessage()
                 ));
     }
@@ -26,6 +28,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex) {
+
         BindingResult bindingResult = ex.getBindingResult();
 
         List<String> errors = bindingResult.getFieldErrors()
@@ -35,7 +38,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ValidationErrorResponse(HttpStatus.BAD_REQUEST.value(),
+                .body(new ValidationErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
                         errors
                 ));
     }
@@ -52,6 +56,42 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
                         message
+                ));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+            IllegalArgumentException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDateRange(
+            InvalidDateRangeException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(InvalidValueRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidValueRange(
+            InvalidValueRangeException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        ex.getMessage()
                 ));
     }
 }

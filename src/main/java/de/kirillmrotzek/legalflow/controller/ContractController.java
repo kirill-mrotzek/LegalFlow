@@ -1,10 +1,13 @@
 package de.kirillmrotzek.legalflow.controller;
 
+import de.kirillmrotzek.legalflow.dto.ContractPageResponse;
 import de.kirillmrotzek.legalflow.dto.ContractRequest;
 import de.kirillmrotzek.legalflow.dto.ContractResponse;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.exception.InvalidDateRangeException;
+import de.kirillmrotzek.legalflow.exception.InvalidValueRangeException;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.service.ContractService;
@@ -28,7 +31,7 @@ public class ContractController {
     private final ContractMapper contractMapper;
 
     @GetMapping
-    public Page<ContractResponse> getAllContracts(
+    public ContractPageResponse getAllContracts(
             @RequestParam(required = false) ContractStatus status,
             @RequestParam(required = false) ContractType type,
             @RequestParam(required = false) RiskLevel riskLevel,
@@ -40,6 +43,31 @@ public class ContractController {
             @RequestParam(required = false) LocalDate endDateFrom,
             @RequestParam(required = false) LocalDate endDateTo,
             Pageable pageable) {
+
+        if (startDateFrom != null
+                && startDateTo != null
+                && startDateFrom.isAfter(startDateTo)) {
+            throw new InvalidDateRangeException(
+                    "startDateFrom must be before or equal to startDateTo"
+            );
+        }
+
+        if (endDateFrom != null
+                && endDateTo != null
+                && endDateFrom.isAfter(endDateTo)) {
+            throw new InvalidDateRangeException(
+                    "endDateFrom must be before or equal to endDateTo"
+            );
+        }
+
+        if (minValue != null
+                && maxValue != null
+                && minValue.compareTo(maxValue) > 0) {
+
+            throw new InvalidValueRangeException(
+                    "minValue must be less than or equal to maxValue"
+            );
+        }
 
         Page<Contract> contracts = contractService.search(
                 status,
@@ -55,7 +83,16 @@ public class ContractController {
                 pageable
         );
 
-        return contracts.map(contractMapper::toResponse);
+        Page<ContractResponse> responsePage =
+                contracts.map(contractMapper::toResponse);
+
+        return new ContractPageResponse(
+                responsePage.getContent(),
+                responsePage.getNumber(),
+                responsePage.getSize(),
+                responsePage.getTotalElements(),
+                responsePage.getTotalPages()
+        );
     }
 
     @GetMapping("/{id}")

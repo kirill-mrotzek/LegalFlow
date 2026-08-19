@@ -31,11 +31,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doThrow;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+
+import static org.mockito.Mockito.argThat;
+
+import org.springframework.data.domain.PageRequest;
 
 @WebMvcTest(ContractController.class)
 class ContractControllerTest {
@@ -311,7 +316,11 @@ class ContractControllerTest {
         response2.setTitle("Service Agreement");
 
         Page<Contract> contractPage =
-                new PageImpl<>(List.of(contract1, contract2));
+                new PageImpl<>(
+                        List.of(contract1, contract2),
+                        PageRequest.of(0, 10),
+                        25
+                );
 
         when(contractService.search(
                 isNull(),
@@ -344,6 +353,65 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.content[1].id").value(2))
                 .andExpect(jsonPath("$.content[1].title")
                         .value("Service Agreement"));
+    }
+
+    @Test
+    void getAllContracts_shouldReturnPaginationMetadata() throws Exception {
+
+        Contract contract1 = new Contract();
+        contract1.setId(11L);
+        contract1.setTitle("NDA");
+
+        Contract contract2 = new Contract();
+        contract2.setId(12L);
+        contract2.setTitle("Service Agreement");
+
+        ContractResponse response1 = new ContractResponse();
+        response1.setId(11L);
+        response1.setTitle("NDA");
+
+        ContractResponse response2 = new ContractResponse();
+        response2.setId(12L);
+        response2.setTitle("Service Agreement");
+
+        Page<Contract> contractPage =
+                new PageImpl<>(
+                        List.of(contract1, contract2),
+                        org.springframework.data.domain.PageRequest.of(1, 10),
+                        25
+                );
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract1))
+                .thenReturn(response1);
+
+        when(contractMapper.toResponse(contract2))
+                .thenReturn(response2);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("page", "1")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(25))
+                .andExpect(jsonPath("$.totalPages").value(3));
     }
 
     @Test
@@ -906,5 +974,501 @@ class ContractControllerTest {
                         .value("Medium Value NDA"))
                 .andExpect(jsonPath("$.content[0].contractValue")
                         .value(25000));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByStartDateFrom() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setStartDate(LocalDate.of(2026, 3, 1));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+        response.setStartDate(LocalDate.of(2026, 3, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(LocalDate.of(2026, 1, 1)),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("startDateFrom", "2026-01-01")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("NDA"))
+                .andExpect(jsonPath("$.content[0].startDate")
+                        .value("2026-03-01"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByStartDateTo() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setStartDate(LocalDate.of(2026, 3, 1));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+        response.setStartDate(LocalDate.of(2026, 3, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(LocalDate.of(2026, 12, 31)),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("startDateTo", "2026-12-31")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("NDA"))
+                .andExpect(jsonPath("$.content[0].startDate")
+                        .value("2026-03-01"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByEndDateFrom() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+        response.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(LocalDate.of(2027, 1, 1)),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("endDateFrom", "2027-01-01")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("NDA"))
+                .andExpect(jsonPath("$.content[0].endDate")
+                        .value("2027-06-01"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByEndDateTo() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+        response.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(LocalDate.of(2027, 12, 31)),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("endDateTo", "2027-12-31")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("NDA"))
+                .andExpect(jsonPath("$.content[0].endDate")
+                        .value("2027-06-01"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByStartDateRange() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setStartDate(LocalDate.of(2026, 3, 1));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+        response.setStartDate(LocalDate.of(2026, 3, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(LocalDate.of(2026, 1, 1)),
+                eq(LocalDate.of(2026, 3, 31)),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("startDateFrom", "2026-01-01")
+                                .param("startDateTo", "2026-03-31")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("NDA"))
+                .andExpect(jsonPath("$.content[0].startDate")
+                        .value("2026-03-01"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByEndDateFromAndTo() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+        response.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(LocalDate.of(2027, 1, 1)),
+                eq(LocalDate.of(2027, 12, 31)),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("endDateFrom", "2027-01-01")
+                                .param("endDateTo", "2027-12-31")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("NDA"))
+                .andExpect(jsonPath("$.content[0].endDate")
+                        .value("2027-06-01"));
+    }
+
+    @Test
+    void getAllContracts_shouldFilterByStatusAndEndDateRange() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("Active NDA");
+        contract.setContractStatus(ContractStatus.ACTIVE);
+        contract.setEndDate(LocalDate.of(2027, 6, 1));
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("Active NDA");
+        response.setContractStatus(ContractStatus.ACTIVE);
+        response.setEndDate(LocalDate.of(2027, 6, 1));
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                eq(ContractStatus.ACTIVE),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(LocalDate.of(2027, 1, 1)),
+                eq(LocalDate.of(2027, 12, 31)),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("status", "ACTIVE")
+                                .param("endDateFrom", "2027-01-01")
+                                .param("endDateTo", "2027-12-31")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Active NDA"))
+                .andExpect(jsonPath("$.content[0].contractStatus")
+                        .value("ACTIVE"))
+                .andExpect(jsonPath("$.content[0].endDate")
+                        .value("2027-06-01"));
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenStartDateFromIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("startDateFrom", "invalid-date")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenStartDateToIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("startDateTo", "invalid-date")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenEndDateFromIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("endDateFrom", "invalid-date")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenEndDateToIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("endDateTo", "invalid-date")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenStartDateFromIsAfterStartDateTo() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("startDateFrom", "2026-12-31")
+                                .param("startDateTo", "2026-01-01")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("startDateFrom must be before or equal to startDateTo"));
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenEndDateFromIsAfterEndDateTo() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("endDateFrom", "2026-12-31")
+                                .param("endDateTo", "2026-01-01")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("endDateFrom must be before or equal to endDateTo"));
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenMinValueIsGreaterThanMaxValue()
+            throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("minValue", "50000")
+                                .param("maxValue", "10000")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("minValue must be less than or equal to maxValue"));
+    }
+
+    @Test
+    void getAllContracts_shouldPassPageableWithPageSizeAndSorting() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("NDA");
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setTitle("NDA");
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of(contract));
+
+        when(contractService.search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                any(Pageable.class)))
+                .thenReturn(contractPage);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("page", "2")
+                                .param("size", "5")
+                                .param("sort", "title,desc")
+                )
+                .andExpect(status().isOk());
+
+        verify(contractService).search(
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                argThat(pageable ->
+                        pageable.getPageNumber() == 2
+                                && pageable.getPageSize() == 5
+                                && pageable.getSort().getOrderFor("title") != null
+                                && pageable.getSort()
+                                .getOrderFor("title")
+                                .getDirection()
+                                .isDescending()
+                )
+        );
     }
 }
