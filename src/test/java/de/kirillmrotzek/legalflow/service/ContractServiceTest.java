@@ -458,17 +458,41 @@ class ContractServiceTest {
         existingContract.setTitle("Old NDA");
         existingContract.setContractNumber("NDA-001");
         existingContract.setCounterparty("Google");
+        existingContract.setContractType(ContractType.NDA);
+        existingContract.setContractStatus(ContractStatus.DRAFT);
+        existingContract.setRiskLevel(RiskLevel.LOW);
+        existingContract.setStartDate(LocalDate.of(2026, 1, 1));
+        existingContract.setEndDate(LocalDate.of(2027, 1, 1));
+        existingContract.setGoverningLaw("German Law");
+        existingContract.setContractValue(new BigDecimal("10000"));
+        existingContract.setAutoRenewal(false);
 
         Contract newContract = new Contract();
-        newContract.setTitle("Updated NDA");
-        newContract.setContractNumber("NDA-002");
+        newContract.setTitle("Updated Service Agreement");
+        newContract.setContractNumber("SERVICE-002");
         newContract.setCounterparty("Microsoft");
+        newContract.setContractType(ContractType.SERVICE);
+        newContract.setContractStatus(ContractStatus.ACTIVE);
+        newContract.setRiskLevel(RiskLevel.HIGH);
+        newContract.setStartDate(LocalDate.of(2026, 9, 1));
+        newContract.setEndDate(LocalDate.of(2027, 9, 1));
+        newContract.setGoverningLaw("Austrian Law");
+        newContract.setContractValue(new BigDecimal("25000"));
+        newContract.setAutoRenewal(true);
 
         Contract savedContract = new Contract();
         savedContract.setId(1L);
-        savedContract.setTitle("Updated NDA");
-        savedContract.setContractNumber("NDA-002");
+        savedContract.setTitle("Updated Service Agreement");
+        savedContract.setContractNumber("SERVICE-002");
         savedContract.setCounterparty("Microsoft");
+        savedContract.setContractType(ContractType.SERVICE);
+        savedContract.setContractStatus(ContractStatus.ACTIVE);
+        savedContract.setRiskLevel(RiskLevel.HIGH);
+        savedContract.setStartDate(LocalDate.of(2026, 9, 1));
+        savedContract.setEndDate(LocalDate.of(2027, 9, 1));
+        savedContract.setGoverningLaw("Austrian Law");
+        savedContract.setContractValue(new BigDecimal("25000"));
+        savedContract.setAutoRenewal(true);
 
         when(contractRepository.findById(1L))
                 .thenReturn(Optional.of(existingContract));
@@ -482,18 +506,57 @@ class ContractServiceTest {
         assertSame(savedContract, result);
 
         assertEquals(
-                "Updated NDA",
+                "Updated Service Agreement",
                 existingContract.getTitle()
         );
 
         assertEquals(
-                "NDA-002",
+                "SERVICE-002",
                 existingContract.getContractNumber()
         );
 
         assertEquals(
                 "Microsoft",
                 existingContract.getCounterparty()
+        );
+
+        assertEquals(
+                ContractType.SERVICE,
+                existingContract.getContractType()
+        );
+
+        assertEquals(
+                ContractStatus.ACTIVE,
+                existingContract.getContractStatus()
+        );
+
+        assertEquals(
+                RiskLevel.HIGH,
+                existingContract.getRiskLevel()
+        );
+
+        assertEquals(
+                LocalDate.of(2026, 9, 1),
+                existingContract.getStartDate()
+        );
+
+        assertEquals(
+                LocalDate.of(2027, 9, 1),
+                existingContract.getEndDate()
+        );
+
+        assertEquals(
+                "Austrian Law",
+                existingContract.getGoverningLaw()
+        );
+
+        assertEquals(
+                new BigDecimal("25000"),
+                existingContract.getContractValue()
+        );
+
+        assertTrue(
+                existingContract.getAutoRenewal()
         );
     }
 
