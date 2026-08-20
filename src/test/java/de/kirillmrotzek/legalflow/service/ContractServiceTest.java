@@ -6,13 +6,14 @@ import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,14 +26,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ContractServiceTest {
 
-    @Autowired
-    private ContractService contractService;
-
-    @MockitoBean
+    @Mock
     private ContractRepository contractRepository;
+
+    @InjectMocks
+    private ContractService contractService;
 
     @Test
     void save_shouldReturnSavedContract() {
@@ -50,6 +51,8 @@ class ContractServiceTest {
         Contract result = contractService.save(contract);
 
         assertSame(savedContract, result);
+
+        verify(contractRepository).save(contract);
     }
 
     @Test
@@ -65,6 +68,8 @@ class ContractServiceTest {
         Contract result = contractService.findById(1L);
 
         assertSame(contract, result);
+
+        verify(contractRepository).findById(1L);
     }
 
     @Test
@@ -77,6 +82,8 @@ class ContractServiceTest {
                 ContractNotFoundException.class,
                 () -> contractService.findById(999L)
         );
+
+        verify(contractRepository).findById(999L);
     }
 
     @Test
@@ -132,7 +139,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byStatus_shouldReturnMatchingContracts() {
+    void search_withStatusFilter_shouldCallRepository() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -186,7 +193,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byCounterparty_shouldReturnMatchingContracts() {
+    void search_withCounterpartyFilter_shouldCallRepository() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -240,7 +247,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byType_shouldReturnMatchingContracts() {
+    void search_withTypeFilter_shouldCallRepository() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -294,7 +301,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byRiskLevel_shouldReturnMatchingContracts() {
+    void search_withRiskLevelFilter_shouldCallRepository() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -348,7 +355,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byStatusAndCounterparty_shouldReturnMatchingContracts() {
+    void search_withStatusAndCounterpartyFilters_shouldCallRepository() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -404,7 +411,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_withAllFilters_shouldReturnMatchingContracts() {
+    void search_withAllFilters_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -558,6 +565,7 @@ class ContractServiceTest {
         assertTrue(
                 existingContract.getAutoRenewal()
         );
+        verify(contractRepository).save(existingContract);
     }
 
     @Test
@@ -573,6 +581,8 @@ class ContractServiceTest {
                 ContractNotFoundException.class,
                 () -> contractService.update(999L, contract)
         );
+
+        verify(contractRepository).findById(999L);
     }
 
     @Test
@@ -600,10 +610,12 @@ class ContractServiceTest {
                 ContractNotFoundException.class,
                 () -> contractService.delete(999L)
         );
+
+        verify(contractRepository).findById(999L);
     }
 
     @Test
-    void search_byMinValue_shouldReturnMatchingContracts() {
+    void search_withMinValueFilter_shouldCallRepository() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -657,7 +669,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byMaxValue_shouldReturnMatchingContracts() {
+    void search_withMaxValueFilter_shouldCallRepository() {
 
         Contract contract1 = new Contract();
         contract1.setId(1L);
@@ -711,7 +723,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byMinAndMaxValue_shouldReturnMatchingContracts() {
+    void search_withMinAndMaxValueFilters_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -755,7 +767,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byStartDateFrom_shouldReturnMatchingContracts() {
+    void search_withStartDateFromFilter_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -799,7 +811,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byStartDateTo_shouldReturnMatchingContracts() {
+    void search_withStartDateToFilter_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -843,7 +855,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byEndDateFrom_shouldReturnMatchingContracts() {
+    void search_withEndDateFromFilter_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -887,7 +899,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byEndDateTo_shouldReturnMatchingContracts() {
+    void search_withEndDateToFilter_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -931,7 +943,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byStartDateRange_shouldReturnMatchingContracts() {
+    void search_withStartDateRange_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -975,7 +987,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_byEndDateRange_shouldReturnMatchingContracts() {
+    void search_withEndDateRange_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -1019,7 +1031,7 @@ class ContractServiceTest {
     }
 
     @Test
-    void search_withAllFiltersIncludingDates_shouldReturnMatchingContracts() {
+    void search_withAllFiltersIncludingDates_shouldCallRepository() {
 
         Contract contract = new Contract();
         contract.setId(1L);
@@ -1065,6 +1077,43 @@ class ContractServiceTest {
         verify(contractRepository).findAll(
                 any(Specification.class),
                 any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_withoutFilters_shouldPassSpecificationAndPageableToRepository() {
+
+        Page<Contract> contractPage =
+                new PageImpl<>(List.of());
+
+        Pageable pageable =
+                Pageable.ofSize(10);
+
+        when(contractRepository.findAll(
+                any(Specification.class),
+                eq(pageable)
+        )).thenReturn(contractPage);
+
+        Page<Contract> result =
+                contractService.search(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        pageable
+                );
+
+        assertSame(contractPage, result);
+
+        verify(contractRepository).findAll(
+                any(Specification.class),
+                eq(pageable)
         );
     }
 }
