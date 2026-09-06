@@ -2,7 +2,6 @@ package de.kirillmrotzek.legalflow.dto;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
-import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,9 +29,6 @@ public class ContractRequest {
     private ContractStatus contractStatus;
 
     @NotNull
-    private RiskLevel riskLevel;
-
-    @NotNull
     private LocalDate startDate;
 
     @NotNull
@@ -46,4 +42,6 @@ public class ContractRequest {
 
     @NotNull
     private Boolean autoRenewal;
+
+    private Boolean unlimitedLiability;
 }

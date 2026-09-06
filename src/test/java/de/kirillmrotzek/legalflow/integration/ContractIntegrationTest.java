@@ -102,8 +102,7 @@ class ContractIntegrationTest {
                 "contractNumber": "INT-SERVICE-001",
                 "counterparty": "Siemens",
                 "contractType": "SERVICE",
-                "contractStatus": "ACTIVE",
-                "riskLevel": "MEDIUM",
+                "contractStatus": "ACTIVE",                
                 "startDate": "2026-08-20",
                 "endDate": "2027-08-20",
                 "governingLaw": "German Law",
@@ -141,7 +140,7 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.contractStatus")
                         .value("ACTIVE"))
                 .andExpect(jsonPath("$.riskLevel")
-                        .value("MEDIUM"));
+                        .value("LOW"));
     }
 
     @Test
@@ -674,8 +673,7 @@ class ContractIntegrationTest {
                 "contractNumber": "UPDATE-001",
                 "counterparty": "Original Company",
                 "contractType": "SERVICE",
-                "contractStatus": "DRAFT",
-                "riskLevel": "LOW",
+                "contractStatus": "DRAFT",               
                 "startDate": "2026-08-20",
                 "endDate": "2027-08-20",
                 "governingLaw": "German Law",
@@ -704,13 +702,13 @@ class ContractIntegrationTest {
                 "contractNumber": "UPDATE-001",
                 "counterparty": "Updated Company",
                 "contractType": "SERVICE",
-                "contractStatus": "ACTIVE",
-                "riskLevel": "HIGH",
+                "contractStatus": "ACTIVE",                
                 "startDate": "2026-09-01",
                 "endDate": "2027-09-01",
                 "governingLaw": "German Law",
-                "contractValue": 25000,
-                "autoRenewal": true
+                "contractValue": 150000,
+                "autoRenewal": true,
+                "unlimitedLiability": true
             }
             """;
 
@@ -731,7 +729,7 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.riskLevel")
                         .value("HIGH"))
                 .andExpect(jsonPath("$.contractValue")
-                        .value(25000))
+                        .value(150000))
                 .andExpect(jsonPath("$.autoRenewal")
                         .value(true));
     }
@@ -746,8 +744,7 @@ class ContractIntegrationTest {
                 "contractNumber": "UPDATE-404",
                 "counterparty": "Company",
                 "contractType": "SERVICE",
-                "contractStatus": "ACTIVE",
-                "riskLevel": "MEDIUM",
+                "contractStatus": "ACTIVE",               
                 "startDate": "2026-08-20",
                 "endDate": "2027-08-20",
                 "governingLaw": "German Law",
@@ -776,8 +773,7 @@ class ContractIntegrationTest {
                 "contractNumber": "DELETE-001",
                 "counterparty": "Delete Company",
                 "contractType": "NDA",
-                "contractStatus": "DRAFT",
-                "riskLevel": "LOW",
+                "contractStatus": "DRAFT",               
                 "startDate": "2026-08-20",
                 "endDate": "2027-08-20",
                 "governingLaw": "German Law",
@@ -839,8 +835,7 @@ class ContractIntegrationTest {
             "contractNumber": "VALID-001",
             "counterparty": "Microsoft",
             "contractType": "NDA",
-            "contractStatus": "DRAFT",
-            "riskLevel": "LOW",
+            "contractStatus": "DRAFT",           
             "startDate": "2026-08-20",
             "endDate": "2027-08-20",
             "governingLaw": "German Law",
@@ -870,8 +865,7 @@ class ContractIntegrationTest {
             "title": "Validation Test",
             "contractNumber": "VALID-002",
             "counterparty": "Microsoft",
-            "contractStatus": "DRAFT",
-            "riskLevel": "LOW",
+            "contractStatus": "DRAFT",            
             "startDate": "2026-08-20",
             "endDate": "2027-08-20",
             "governingLaw": "German Law",
@@ -903,8 +897,7 @@ class ContractIntegrationTest {
             "contractNumber": "VALID-003",
             "counterparty": "Microsoft",
             "contractType": "NDA",
-            "contractStatus": "DRAFT",
-            "riskLevel": "LOW",
+            "contractStatus": "DRAFT",            
             "startDate": "2026-08-20",
             "endDate": "2027-08-20",
             "governingLaw": "German Law",
@@ -936,8 +929,7 @@ class ContractIntegrationTest {
             "contractNumber": "VALID-004",
             "counterparty": "Microsoft",
             "contractType": "NDA",
-            "contractStatus": "DRAFT",
-            "riskLevel": "LOW",
+            "contractStatus": "DRAFT",           
             "startDate": "2026-08-20",
             "endDate": "2027-08-20",
             "governingLaw": "German Law",
@@ -968,8 +960,7 @@ class ContractIntegrationTest {
             "contractNumber": "VALID-005",
             "counterparty": "   ",
             "contractType": "NDA",
-            "contractStatus": "DRAFT",
-            "riskLevel": "LOW",
+            "contractStatus": "DRAFT",           
             "startDate": "2026-08-20",
             "endDate": "2027-08-20",
             "governingLaw": "German Law",
@@ -1001,8 +992,7 @@ class ContractIntegrationTest {
         "contractNumber": "",
         "counterparty": "Microsoft",
         "contractType": "NDA",
-        "contractStatus": "DRAFT",
-        "riskLevel": "LOW",
+        "contractStatus": "DRAFT",       
         "startDate": "2026-08-20",
         "endDate": "2027-08-20",
         "governingLaw": "German Law",
@@ -1041,6 +1031,4 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(10));
     }
-
-
 }

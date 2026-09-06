@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Locale;
 
 public final class ContractSpecification {
 
@@ -52,7 +53,7 @@ public final class ContractSpecification {
                         criteriaBuilder.lower(
                                 root.get("counterparty")
                         ),
-                        "%" + counterparty.toLowerCase() + "%"
+                        "%" + counterparty.toLowerCase(Locale.ROOT) + "%"
                 );
     }
 

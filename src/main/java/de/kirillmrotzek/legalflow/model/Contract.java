@@ -49,6 +49,8 @@ public class Contract {
 
     private Boolean autoRenewal;
 
+    private Boolean unlimitedLiability;
+
     @Column(nullable = false)
     private String counterparty;
 

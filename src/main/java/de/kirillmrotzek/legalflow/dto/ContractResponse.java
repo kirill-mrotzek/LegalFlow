@@ -22,4 +22,5 @@ public class ContractResponse {
     private String governingLaw;
     private BigDecimal contractValue;
     private Boolean autoRenewal;
+    private Boolean unlimitedLiability;
 }

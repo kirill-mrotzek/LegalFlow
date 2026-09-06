@@ -6,6 +6,7 @@ import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
+import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.specification.ContractSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,8 +22,13 @@ import java.time.LocalDate;
 public class ContractService {
 
     private final ContractRepository contractRepository;
+    private final RiskAssessmentService riskAssessmentService;
 
     public Contract save(Contract contract) {
+        RiskAssessment assessment =
+                riskAssessmentService.assess(contract);
+        contract.setRiskLevel(assessment.getRiskLevel());
+
         return contractRepository.save(contract);
     }
 
@@ -121,12 +127,19 @@ public class ContractService {
         existingContract.setCounterparty(contract.getCounterparty());
         existingContract.setContractType(contract.getContractType());
         existingContract.setContractStatus(contract.getContractStatus());
-        existingContract.setRiskLevel(contract.getRiskLevel());
+        existingContract.setUnlimitedLiability(
+                contract.getUnlimitedLiability()
+        );
         existingContract.setStartDate(contract.getStartDate());
         existingContract.setEndDate(contract.getEndDate());
         existingContract.setGoverningLaw(contract.getGoverningLaw());
         existingContract.setContractValue(contract.getContractValue());
         existingContract.setAutoRenewal(contract.getAutoRenewal());
+
+        RiskAssessment assessment =
+                riskAssessmentService.assess(existingContract);
+
+        existingContract.setRiskLevel(assessment.getRiskLevel());
 
         return contractRepository.save(existingContract);
     }

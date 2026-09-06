@@ -5,6 +5,7 @@ import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
+import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +33,9 @@ class ContractServiceTest {
     @Mock
     private ContractRepository contractRepository;
 
+    @Mock
+    private RiskAssessmentService riskAssessmentService;
+
     @InjectMocks
     private ContractService contractService;
 
@@ -41,18 +45,35 @@ class ContractServiceTest {
         Contract contract = new Contract();
         contract.setTitle("NDA");
 
+        RiskAssessment assessment =
+                new RiskAssessment(
+                        65,
+                        RiskLevel.HIGH,
+                        List.of()
+                );
+
+
         Contract savedContract = new Contract();
         savedContract.setId(1L);
         savedContract.setTitle("NDA");
 
+        when(riskAssessmentService.assess(contract))
+                .thenReturn(assessment);
+
         when(contractRepository.save(contract))
                 .thenReturn(savedContract);
+
 
         Contract result = contractService.save(contract);
 
         assertSame(savedContract, result);
+        assertEquals(
+                RiskLevel.HIGH,
+                contract.getRiskLevel()
+        );
 
         verify(contractRepository).save(contract);
+        verify(riskAssessmentService).assess(contract);
     }
 
     @Test
@@ -480,11 +501,11 @@ class ContractServiceTest {
         newContract.setCounterparty("Microsoft");
         newContract.setContractType(ContractType.SERVICE);
         newContract.setContractStatus(ContractStatus.ACTIVE);
-        newContract.setRiskLevel(RiskLevel.HIGH);
         newContract.setStartDate(LocalDate.of(2026, 9, 1));
         newContract.setEndDate(LocalDate.of(2027, 9, 1));
         newContract.setGoverningLaw("Austrian Law");
         newContract.setContractValue(new BigDecimal("25000"));
+        newContract.setUnlimitedLiability(true);
         newContract.setAutoRenewal(true);
 
         Contract savedContract = new Contract();
@@ -494,12 +515,23 @@ class ContractServiceTest {
         savedContract.setCounterparty("Microsoft");
         savedContract.setContractType(ContractType.SERVICE);
         savedContract.setContractStatus(ContractStatus.ACTIVE);
-        savedContract.setRiskLevel(RiskLevel.HIGH);
+        savedContract.setRiskLevel(RiskLevel.MEDIUM);
         savedContract.setStartDate(LocalDate.of(2026, 9, 1));
         savedContract.setEndDate(LocalDate.of(2027, 9, 1));
         savedContract.setGoverningLaw("Austrian Law");
         savedContract.setContractValue(new BigDecimal("25000"));
+        savedContract.setUnlimitedLiability(true);
         savedContract.setAutoRenewal(true);
+
+        RiskAssessment assessment =
+                new RiskAssessment(
+                        10,
+                        RiskLevel.MEDIUM,
+                        List.of()
+                );
+
+        when(riskAssessmentService.assess(existingContract))
+                .thenReturn(assessment);
 
         when(contractRepository.findById(1L))
                 .thenReturn(Optional.of(existingContract));
@@ -538,7 +570,7 @@ class ContractServiceTest {
         );
 
         assertEquals(
-                RiskLevel.HIGH,
+                RiskLevel.MEDIUM,
                 existingContract.getRiskLevel()
         );
 
@@ -561,10 +593,16 @@ class ContractServiceTest {
                 new BigDecimal("25000"),
                 existingContract.getContractValue()
         );
-
         assertTrue(
                 existingContract.getAutoRenewal()
         );
+
+        assertTrue(
+                existingContract.getUnlimitedLiability()
+        );
+
+
+        verify(riskAssessmentService).assess(existingContract);
         verify(contractRepository).save(existingContract);
     }
 
