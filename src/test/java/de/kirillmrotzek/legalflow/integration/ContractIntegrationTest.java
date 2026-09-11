@@ -23,8 +23,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import org.springframework.test.annotation.DirtiesContext;
+
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -97,19 +100,19 @@ class ContractIntegrationTest {
     void createContract_thenGetById_shouldReturnPersistedContract() throws Exception {
 
         String requestJson = """
-            {
-                "title": "Integration Service Agreement",
-                "contractNumber": "INT-SERVICE-001",
-                "counterparty": "Siemens",
-                "contractType": "SERVICE",
-                "contractStatus": "ACTIVE",                
-                "startDate": "2026-08-20",
-                "endDate": "2027-08-20",
-                "governingLaw": "German Law",
-                "contractValue": 50000,
-                "autoRenewal": false
-            }
-            """;
+                {
+                    "title": "Integration Service Agreement",
+                    "contractNumber": "INT-SERVICE-001",
+                    "counterparty": "Siemens",
+                    "contractType": "SERVICE",
+                    "contractStatus": "ACTIVE",                
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 50000,
+                    "autoRenewal": false
+                }
+                """;
 
         String location =
                 mockMvc.perform(
@@ -668,19 +671,19 @@ class ContractIntegrationTest {
     void updateContract_shouldUpdateAndReturnContract() throws Exception {
 
         String createJson = """
-            {
-                "title": "Original Contract",
-                "contractNumber": "UPDATE-001",
-                "counterparty": "Original Company",
-                "contractType": "SERVICE",
-                "contractStatus": "DRAFT",               
-                "startDate": "2026-08-20",
-                "endDate": "2027-08-20",
-                "governingLaw": "German Law",
-                "contractValue": 10000,
-                "autoRenewal": false
-            }
-            """;
+                {
+                    "title": "Original Contract",
+                    "contractNumber": "UPDATE-001",
+                    "counterparty": "Original Company",
+                    "contractType": "SERVICE",
+                    "contractStatus": "DRAFT",               
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 10000,
+                    "autoRenewal": false
+                }
+                """;
 
         String location =
                 mockMvc.perform(
@@ -697,23 +700,23 @@ class ContractIntegrationTest {
         assertNotNull(location);
 
         String updateJson = """
-            {
-                "title": "Updated Contract",
-                "contractNumber": "UPDATE-001",
-                "counterparty": "Updated Company",
-                "contractType": "SERVICE",
-                "contractStatus": "ACTIVE",                
-                "startDate": "2026-09-01",
-                "endDate": "2027-09-01",
-                "governingLaw": "German Law",
-                "contractValue": 150000,
-                "autoRenewal": true,
-                "unlimitedLiability": true
-            }
-            """;
+                {
+                    "title": "Updated Contract",
+                    "contractNumber": "UPDATE-001",
+                    "counterparty": "Updated Company",
+                    "contractType": "SERVICE",
+                    "contractStatus": "ACTIVE",                
+                    "startDate": "2026-09-01",
+                    "endDate": "2027-09-01",
+                    "governingLaw": "German Law",
+                    "contractValue": 150000,
+                    "autoRenewal": true,
+                    "unlimitedLiability": true
+                }
+                """;
 
         mockMvc.perform(
-                                put(location)
+                        put(location)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(updateJson)
                 )
@@ -739,22 +742,22 @@ class ContractIntegrationTest {
             throws Exception {
 
         String updateJson = """
-            {
-                "title": "Updated Contract",
-                "contractNumber": "UPDATE-404",
-                "counterparty": "Company",
-                "contractType": "SERVICE",
-                "contractStatus": "ACTIVE",               
-                "startDate": "2026-08-20",
-                "endDate": "2027-08-20",
-                "governingLaw": "German Law",
-                "contractValue": 10000,
-                "autoRenewal": false
-            }
-            """;
+                {
+                    "title": "Updated Contract",
+                    "contractNumber": "UPDATE-404",
+                    "counterparty": "Company",
+                    "contractType": "SERVICE",
+                    "contractStatus": "ACTIVE",               
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 10000,
+                    "autoRenewal": false
+                }
+                """;
 
         mockMvc.perform(
-                                put("/contracts/999999")
+                        put("/contracts/999999")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(updateJson)
                 )
@@ -768,19 +771,19 @@ class ContractIntegrationTest {
     void deleteContract_shouldDeleteContract() throws Exception {
 
         String createJson = """
-            {
-                "title": "Contract To Delete",
-                "contractNumber": "DELETE-001",
-                "counterparty": "Delete Company",
-                "contractType": "NDA",
-                "contractStatus": "DRAFT",               
-                "startDate": "2026-08-20",
-                "endDate": "2027-08-20",
-                "governingLaw": "German Law",
-                "contractValue": 5000,
-                "autoRenewal": false
-            }
-            """;
+                {
+                    "title": "Contract To Delete",
+                    "contractNumber": "DELETE-001",
+                    "counterparty": "Delete Company",
+                    "contractType": "NDA",
+                    "contractStatus": "DRAFT",               
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 5000,
+                    "autoRenewal": false
+                }
+                """;
 
         String location =
                 mockMvc.perform(
@@ -830,19 +833,19 @@ class ContractIntegrationTest {
             throws Exception {
 
         String requestJson = """
-        {
-            "title": "",
-            "contractNumber": "VALID-001",
-            "counterparty": "Microsoft",
-            "contractType": "NDA",
-            "contractStatus": "DRAFT",           
-            "startDate": "2026-08-20",
-            "endDate": "2027-08-20",
-            "governingLaw": "German Law",
-            "contractValue": 15000,
-            "autoRenewal": true
-        }
-        """;
+                {
+                    "title": "",
+                    "contractNumber": "VALID-001",
+                    "counterparty": "Microsoft",
+                    "contractType": "NDA",
+                    "contractStatus": "DRAFT",           
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 15000,
+                    "autoRenewal": true
+                }
+                """;
 
         mockMvc.perform(
                         post("/contracts")
@@ -861,18 +864,18 @@ class ContractIntegrationTest {
             throws Exception {
 
         String requestJson = """
-        {
-            "title": "Validation Test",
-            "contractNumber": "VALID-002",
-            "counterparty": "Microsoft",
-            "contractStatus": "DRAFT",            
-            "startDate": "2026-08-20",
-            "endDate": "2027-08-20",
-            "governingLaw": "German Law",
-            "contractValue": 15000,
-            "autoRenewal": true
-        }
-        """;
+                {
+                    "title": "Validation Test",
+                    "contractNumber": "VALID-002",
+                    "counterparty": "Microsoft",
+                    "contractStatus": "DRAFT",            
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 15000,
+                    "autoRenewal": true
+                }
+                """;
 
         mockMvc.perform(
                         post("/contracts")
@@ -892,19 +895,19 @@ class ContractIntegrationTest {
             throws Exception {
 
         String requestJson = """
-        {
-            "title": "Validation Test",
-            "contractNumber": "VALID-003",
-            "counterparty": "Microsoft",
-            "contractType": "NDA",
-            "contractStatus": "DRAFT",            
-            "startDate": "2026-08-20",
-            "endDate": "2027-08-20",
-            "governingLaw": "German Law",
-            "contractValue": -100,
-            "autoRenewal": true
-        }
-        """;
+                {
+                    "title": "Validation Test",
+                    "contractNumber": "VALID-003",
+                    "counterparty": "Microsoft",
+                    "contractType": "NDA",
+                    "contractStatus": "DRAFT",            
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": -100,
+                    "autoRenewal": true
+                }
+                """;
 
         mockMvc.perform(
                         post("/contracts")
@@ -924,18 +927,18 @@ class ContractIntegrationTest {
             throws Exception {
 
         String requestJson = """
-        {
-            "title": "Validation Test",
-            "contractNumber": "VALID-004",
-            "counterparty": "Microsoft",
-            "contractType": "NDA",
-            "contractStatus": "DRAFT",           
-            "startDate": "2026-08-20",
-            "endDate": "2027-08-20",
-            "governingLaw": "German Law",
-            "contractValue": 15000
-        }
-        """;
+                {
+                    "title": "Validation Test",
+                    "contractNumber": "VALID-004",
+                    "counterparty": "Microsoft",
+                    "contractType": "NDA",
+                    "contractStatus": "DRAFT",           
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 15000
+                }
+                """;
 
         mockMvc.perform(
                         post("/contracts")
@@ -955,19 +958,19 @@ class ContractIntegrationTest {
             throws Exception {
 
         String requestJson = """
-        {
-            "title": "Validation Test",
-            "contractNumber": "VALID-005",
-            "counterparty": "   ",
-            "contractType": "NDA",
-            "contractStatus": "DRAFT",           
-            "startDate": "2026-08-20",
-            "endDate": "2027-08-20",
-            "governingLaw": "German Law",
-            "contractValue": 15000,
-            "autoRenewal": true
-        }
-        """;
+                {
+                    "title": "Validation Test",
+                    "contractNumber": "VALID-005",
+                    "counterparty": "   ",
+                    "contractType": "NDA",
+                    "contractStatus": "DRAFT",           
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 15000,
+                    "autoRenewal": true
+                }
+                """;
 
         mockMvc.perform(
                         post("/contracts")
@@ -987,19 +990,19 @@ class ContractIntegrationTest {
             throws Exception {
 
         String requestJson = """
-    {
-        "title": "Validation Test",
-        "contractNumber": "",
-        "counterparty": "Microsoft",
-        "contractType": "NDA",
-        "contractStatus": "DRAFT",       
-        "startDate": "2026-08-20",
-        "endDate": "2027-08-20",
-        "governingLaw": "German Law",
-        "contractValue": 15000,
-        "autoRenewal": true
-    }
-    """;
+                {
+                    "title": "Validation Test",
+                    "contractNumber": "",
+                    "counterparty": "Microsoft",
+                    "contractType": "NDA",
+                    "contractStatus": "DRAFT",       
+                    "startDate": "2026-08-20",
+                    "endDate": "2027-08-20",
+                    "governingLaw": "German Law",
+                    "contractValue": 15000,
+                    "autoRenewal": true
+                }
+                """;
 
         mockMvc.perform(
                         post("/contracts")
@@ -1030,5 +1033,66 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.totalPages").value(0))
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(10));
+    }
+
+    @Test
+    void getRiskAssessment_shouldReturnRiskAssessment() throws Exception {
+
+        String requestJson = """
+                {
+                    "title": "Risk Assessment Test Contract",
+                    "contractNumber": "RISK-API-001",
+                    "counterparty": "Siemens",
+                    "contractType": "SERVICE",
+                    "contractStatus": "ACTIVE",
+                    "startDate": "2026-08-20",
+                    "endDate": "2030-08-20",
+                    "governingLaw": "Swiss law",
+                    "contractValue": 150000,
+                    "autoRenewal": true,
+                    "unlimitedLiability": true
+                }
+                """;
+
+        String location =
+                mockMvc.perform(
+                                post("/contracts")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(requestJson)
+                        )
+                        .andExpect(status().isCreated())
+                        .andExpect(header().exists("Location"))
+                        .andReturn()
+                        .getResponse()
+                        .getHeader("Location");
+
+        mockMvc.perform(
+                        get(location + "/risk-assessment")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value(100))
+                .andExpect(jsonPath("$.riskLevel").value("HIGH"))
+                .andExpect(jsonPath("$.factors.length()").value(5))
+                .andExpect(jsonPath("$.factors[*].code")
+                        .value(hasItems(
+                                "HIGH_CONTRACT_VALUE",
+                                "AUTO_RENEWAL",
+                                "LONG_TERM_CONTRACT",
+                                "FOREIGN_GOVERNING_LAW_NON_EU",
+                                "UNLIMITED_LIABILITY"
+                        )));
+    }
+
+    @Test
+    void getRiskAssessment_whenContractDoesNotExist_shouldReturnNotFound()
+            throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts/999999/risk-assessment")
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message")
+                        .value("Contract with id 999999 not found"));
     }
 }

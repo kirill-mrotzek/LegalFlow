@@ -3,14 +3,18 @@ package de.kirillmrotzek.legalflow.controller;
 import de.kirillmrotzek.legalflow.dto.ContractPageResponse;
 import de.kirillmrotzek.legalflow.dto.ContractRequest;
 import de.kirillmrotzek.legalflow.dto.ContractResponse;
+import de.kirillmrotzek.legalflow.dto.RiskAssessmentResponse;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.exception.InvalidDateRangeException;
 import de.kirillmrotzek.legalflow.exception.InvalidValueRangeException;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
+import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
+import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.service.ContractService;
+import de.kirillmrotzek.legalflow.service.RiskAssessmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +33,8 @@ public class ContractController {
 
     private final ContractService contractService;
     private final ContractMapper contractMapper;
+    private final RiskAssessmentService riskAssessmentService;
+    private final RiskAssessmentMapper riskAssessmentMapper;
 
     @GetMapping
     public ContractPageResponse getAllContracts(
@@ -104,6 +110,21 @@ public class ContractController {
         return ResponseEntity.ok(
                 contractMapper.toResponse(contract)
         );
+    }
+
+    @GetMapping("/{id}/risk-assessment")
+    public ResponseEntity<RiskAssessmentResponse> getRiskAssessment(
+            @PathVariable Long id){
+
+        Contract contract = contractService.findById(id);
+
+        RiskAssessment assessment =
+                riskAssessmentService.assess(contract);
+
+        RiskAssessmentResponse response =
+                riskAssessmentMapper.toResponse(assessment);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping

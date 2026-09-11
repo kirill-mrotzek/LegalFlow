@@ -3,7 +3,6 @@ package de.kirillmrotzek.legalflow.risk;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.springframework.stereotype.Component;
 
-
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -22,10 +21,7 @@ public class HighContractValueRule implements RiskRule {
                             "Contract value exceeds € 100.000"
                     )
             );
-
-
         }
-
         return Optional.empty();
     }
 }

@@ -42,6 +42,9 @@ import static org.mockito.Mockito.argThat;
 
 import org.springframework.data.domain.PageRequest;
 
+import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
+import de.kirillmrotzek.legalflow.service.RiskAssessmentService;
+
 @WebMvcTest(ContractController.class)
 class ContractControllerTest {
 
@@ -53,6 +56,12 @@ class ContractControllerTest {
 
     @MockitoBean
     private ContractMapper contractMapper;
+
+    @MockitoBean
+    private RiskAssessmentService riskAssessmentService;
+
+    @MockitoBean
+    private RiskAssessmentMapper riskAssessmentMapper;
 
     @Test
     void getContractById_shouldReturn200() throws Exception {
