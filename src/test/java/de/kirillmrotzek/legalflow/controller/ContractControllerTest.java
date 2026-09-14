@@ -1,9 +1,13 @@
 package de.kirillmrotzek.legalflow.controller;
 
+import de.kirillmrotzek.legalflow.dto.RiskAssessmentResponse;
+import de.kirillmrotzek.legalflow.dto.RiskFactorResponse;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
+import de.kirillmrotzek.legalflow.risk.RiskAssessment;
+import de.kirillmrotzek.legalflow.risk.RiskFactor;
 import de.kirillmrotzek.legalflow.service.ContractService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -14,7 +18,7 @@ import de.kirillmrotzek.legalflow.dto.ContractResponse;
 import de.kirillmrotzek.legalflow.model.Contract;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,8 +31,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doThrow;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,8 +39,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
-import static org.mockito.Mockito.argThat;
 
 import org.springframework.data.domain.PageRequest;
 
@@ -1479,5 +1479,75 @@ class ContractControllerTest {
                                 .isDescending()
                 )
         );
+    }
+
+    @Test
+    void getRiskAssessment_shouldReturnRiskAssessment() throws Exception {
+
+        RiskFactor factor = new RiskFactor(
+                "HIGH_CONTRACT_VALUE",
+                30,
+                "Contract value exceeds € 100.000"
+        );
+
+        List<RiskFactor> factors = List.of(factor);
+
+        RiskAssessment assessment = new RiskAssessment(
+                30,
+                RiskLevel.HIGH,
+                factors
+        );
+
+        when(riskAssessmentService.assess(any(Contract.class)))
+                .thenReturn(assessment);
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setTitle("High Value Contract");
+
+        when(contractService.findById(1L))
+                .thenReturn(contract);
+
+        RiskFactorResponse factorResponse = new RiskFactorResponse();
+        factorResponse.setCode("HIGH_CONTRACT_VALUE");
+        factorResponse.setPoints(30);
+        factorResponse.setReason("Contract value exceeds € 100.000");
+
+        RiskAssessmentResponse response = new RiskAssessmentResponse();
+        response.setScore(30);
+        response.setRiskLevel(RiskLevel.HIGH);
+        response.setFactors(List.of(factorResponse));
+
+        when(riskAssessmentMapper.toResponse(assessment))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        get("/contracts/1/risk-assessment")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.score").value(30))
+                .andExpect(jsonPath("$.riskLevel").value("HIGH"))
+                .andExpect(jsonPath("$.factors[0].code").value("HIGH_CONTRACT_VALUE"))
+                .andExpect(jsonPath("$.factors[0].points").value(30))
+                .andExpect(jsonPath("$.factors[0].reason")
+                        .value("Contract value exceeds € 100.000"));
+
+        verify(contractService).findById(1L);
+        verify(riskAssessmentService).assess(contract);
+        verify(riskAssessmentMapper).toResponse(assessment);
+
+    }
+
+    @Test
+    void getRiskAssessment_shouldReturn404() throws Exception {
+
+        when(contractService.findById(999L))
+                .thenThrow(new ContractNotFoundException(999L));
+
+        mockMvc.perform(get("/contracts/999/risk-assessment"))
+                .andExpect(status().isNotFound());
+
+        verify(contractService).findById(999L);
+        verify(riskAssessmentService, never()).assess(any(Contract.class));
     }
 }

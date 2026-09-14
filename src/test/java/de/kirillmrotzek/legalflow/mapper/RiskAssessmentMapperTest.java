@@ -27,7 +27,7 @@ class RiskAssessmentMapperTest {
         RiskFactor factor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds €100,000"
+                "Contract value exceeds €100.000"
         );
 
         RiskFactorResponse result = mapper.toResponse(factor);
@@ -43,7 +43,7 @@ class RiskAssessmentMapperTest {
         );
 
         assertEquals(
-                "Contract value exceeds €100,000",
+                "Contract value exceeds €100.000",
                 result.getReason()
         );
     }
@@ -54,7 +54,7 @@ class RiskAssessmentMapperTest {
         RiskFactor firstFactor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds €100,000"
+                "Contract value exceeds €100.000"
         );
 
         RiskFactor secondFactor = new RiskFactor(
@@ -91,7 +91,7 @@ class RiskAssessmentMapperTest {
         );
 
         assertEquals(
-                "Contract value exceeds €100,000",
+                "Contract value exceeds €100.000",
                 result.getFactors().get(0).getReason()
         );
 
