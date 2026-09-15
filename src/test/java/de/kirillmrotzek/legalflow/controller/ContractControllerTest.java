@@ -44,6 +44,7 @@ import org.springframework.data.domain.PageRequest;
 
 import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
 import de.kirillmrotzek.legalflow.service.RiskAssessmentService;
+import static org.hamcrest.Matchers.hasItem;
 
 @WebMvcTest(ContractController.class)
 class ContractControllerTest {
@@ -93,7 +94,19 @@ class ContractControllerTest {
                 .thenThrow(new ContractNotFoundException(999L));
 
         mockMvc.perform(get("/contracts/999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Contract with id 999 not found"));
+    }
+
+    @Test
+    void getContractById_shouldReturn400WhenIdIsInvalid() throws Exception {
+
+        mockMvc.perform(get("/contracts/abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("Invalid value 'abc' for parameter 'id'"));
     }
 
     @Test
@@ -176,6 +189,36 @@ class ContractControllerTest {
     }
 
     @Test
+    void createContract_shouldReturn400WhenMultipleFieldsAreInvalid() throws Exception {
+
+        mockMvc.perform(
+                        post("/contracts")
+                                .contentType(APPLICATION_JSON)
+                                .content("""
+                                    {
+                                        "title": "",
+                                        "contractNumber": "",
+                                        "counterparty": "Microsoft",
+                                        "contractType": "NDA",
+                                        "contractStatus": "DRAFT",
+                                        "startDate": "2026-08-10",
+                                        "endDate": "2027-08-10",
+                                        "governingLaw": "German Law",
+                                        "contractValue": -100,
+                                        "autoRenewal": true
+                                    }
+                                    """)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors.length()").value(3))
+                .andExpect(jsonPath("$.errors", hasItem("title: must not be blank")))
+                .andExpect(jsonPath("$.errors", hasItem("contractNumber: must not be blank")))
+                .andExpect(jsonPath("$.errors", hasItem("contractValue: must be greater than 0")));
+    }
+
+    @Test
     void updateContract_shouldReturn200() throws Exception {
 
         Contract contract = new Contract();
@@ -251,7 +294,9 @@ class ContractControllerTest {
                                         }
                                         """)
                 )
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Contract with id 999 not found"));
     }
 
     @Test
@@ -1479,6 +1524,48 @@ class ContractControllerTest {
                                 .isDescending()
                 )
         );
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenStartDateRangeIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("startDateFrom", "2026-10-01")
+                                .param("startDateTo", "2026-09-01")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("startDateFrom must be before or equal to startDateTo"));
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenValueRangeIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("minValue", "100000")
+                                .param("maxValue", "50000")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("minValue must be less than or equal to maxValue"));
+    }
+
+    @Test
+    void getAllContracts_shouldReturn400WhenEndDateRangeIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        get("/contracts")
+                                .param("endDateFrom", "2026-10-01")
+                                .param("endDateTo", "2026-09-01")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message")
+                        .value("endDateFrom must be before or equal to endDateTo"));
     }
 
     @Test
