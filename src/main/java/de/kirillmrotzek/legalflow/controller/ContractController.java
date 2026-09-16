@@ -10,6 +10,7 @@ import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.exception.ErrorResponse;
 import de.kirillmrotzek.legalflow.exception.InvalidDateRangeException;
 import de.kirillmrotzek.legalflow.exception.InvalidValueRangeException;
+import de.kirillmrotzek.legalflow.exception.ValidationErrorResponse;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
 import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
@@ -25,6 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -52,7 +54,11 @@ public class ContractController {
     @GetMapping
     @Operation(
             summary = "Search contracts",
-            description = "Returns a paginated list of contracts with optional filtering by status, type, risk level, counterparty, contract value, and contract dates. The minValue must be less than or equal to maxValue.",
+            description =
+                    "Returns a paginated list of contracts with optional filtering by " +
+                            "status, type, risk level, counterparty, contract value, and contract dates. " +
+                            "If both values are provided, minValue must be less than or equal to maxValue, " +
+                            "startDateFrom must be before or equal to startDateTo, and endDateFrom must be before or equal to endDateTo.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -69,9 +75,21 @@ public class ContractController {
             }
     )
     public ContractPageResponse getAllContracts(
+            @Parameter(
+                    description = "Filter contracts by contract status"
+            )
             @RequestParam(required = false) ContractStatus status,
+            @Parameter(
+                    description = "Filter contracts by contract type"
+            )
             @RequestParam(required = false) ContractType type,
+            @Parameter(
+                    description = "Filter contracts by risk level"
+            )
             @RequestParam(required = false) RiskLevel riskLevel,
+            @Parameter(
+                    description = "Counterparty name to filter by"
+            )
             @RequestParam(required = false) String counterparty,
             @Parameter(
                     description = "Minimum contract value"
@@ -81,10 +99,23 @@ public class ContractController {
                     description = "Maximum contract value"
             )
             @RequestParam(required = false) BigDecimal maxValue,
+            @Parameter(
+                    description = "Minimum contract start date (inclusive)"
+            )
             @RequestParam(required = false) LocalDate startDateFrom,
+            @Parameter(
+                    description = "Maximum contract start date (inclusive)"
+            )
             @RequestParam(required = false) LocalDate startDateTo,
+            @Parameter(
+                    description = "Minimum contract end date (inclusive)"
+            )
             @RequestParam(required = false) LocalDate endDateFrom,
+            @Parameter(
+                    description = "Maximum contract end date (inclusive)"
+            )
             @RequestParam(required = false) LocalDate endDateTo,
+            @ParameterObject
             Pageable pageable) {
 
         if (startDateFrom != null
@@ -220,7 +251,12 @@ public class ContractController {
                             description = "Invalid request parameters",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorResponse.class)
+                                    schema = @Schema(
+                                            oneOf = {
+                                                    ErrorResponse.class,
+                                                    ValidationErrorResponse.class
+                                            }
+                                    )
                             )
                     )
             }
@@ -254,7 +290,12 @@ public class ContractController {
                             description = "Invalid request parameters",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorResponse.class)
+                                    schema = @Schema(
+                                            oneOf = {
+                                                    ErrorResponse.class,
+                                                    ValidationErrorResponse.class
+                                            }
+                                    )
                             )
                     ),
                     @ApiResponse(
