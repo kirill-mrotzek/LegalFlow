@@ -12,5 +12,6 @@ public interface ContractMapper {
     ContractResponse toResponse(Contract contract);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "riskLevel", ignore = true)
     Contract toEntity(ContractRequest request);
 }
