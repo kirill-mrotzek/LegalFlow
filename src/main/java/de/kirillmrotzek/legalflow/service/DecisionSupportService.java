@@ -1,52 +1,87 @@
 package de.kirillmrotzek.legalflow.service;
 
-import de.kirillmrotzek.legalflow.decision.ApprovalRole;
-import de.kirillmrotzek.legalflow.decision.DecisionPriority;
-import de.kirillmrotzek.legalflow.decision.DecisionSupport;
-import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.decision.*;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DecisionSupportService {
 
+    private final List<RecommendationRule> recommendationRules;
+
+    public DecisionSupportService(List<RecommendationRule> recommendationRules) {
+        this.recommendationRules = recommendationRules;
+    }
+
     public DecisionSupport generate(RiskAssessment assessment) {
 
-        RiskLevel riskLevel = assessment.getRiskLevel();
-        return switch (riskLevel) {
+        List<RecommendationResult> recommendations =
+                recommendationRules.stream()
+                        .flatMap(rule -> rule.evaluate(assessment).stream())
+                        .toList();
 
-            case LOW -> new DecisionSupport(
+        List<ApprovalRole> approvalRoles =
+                recommendations.stream()
+                        .flatMap(recommendationResult -> recommendationResult.getApprovalRoles().stream())
+                        .distinct()
+                        .toList();
+
+
+        Optional<DecisionPriority> maxPriority =
+                recommendations.stream()
+                        .map(recommendationResult -> recommendationResult.getPriority())
+                        .max(Comparator.comparing(Enum::ordinal));
+
+        DecisionPriority priority =  maxPriority.orElse(DecisionPriority.LOW);
+
+        List<String> recommendationTexts =
+                recommendations.stream()
+                        .map(recommendationResult -> recommendationResult.getRecommendation())
+                        .toList();
+
+        String recommendation =
+                recommendationTexts.stream()
+                        .collect(Collectors.joining("; "));
+
+        List<String> rationaleTexts =
+                recommendations.stream()
+                        .map(recommendationResult -> recommendationResult.getRationale())
+                        .toList();
+
+        String rationale =
+                rationaleTexts.stream()
+                        .collect(Collectors.joining("; "));
+
+        List<String> nextActionTexts =
+                recommendations.stream()
+                        .map(recommendationResult -> recommendationResult.getNextAction())
+                        .toList();
+
+        String nextAction =
+                nextActionTexts.stream()
+                        .collect(Collectors.joining("; "));
+
+        if (recommendations.isEmpty()) {
+            return new DecisionSupport(
                     "Legal review required",
-                    "Based on risk assessment",
+                    "No specific recommendation rules were triggered",
                     List.of(ApprovalRole.LEGAL),
                     DecisionPriority.LOW,
                     "Route contract for Legal review"
             );
-            case MEDIUM -> new DecisionSupport(
-                    "Legal, Finance review required",
-                    "Based on risk assessment",
-                    List.of(
-                            ApprovalRole.LEGAL,
-                            ApprovalRole.FINANCE
-                    ),
-                    DecisionPriority.MEDIUM,
-                    "Route contract for Legal and Finance review"
-            );
-            case HIGH -> new DecisionSupport(
-                    "Management, Legal, Finance, Compliance review required",
-                    "Based on risk assessment",
-                    List.of(
-                            ApprovalRole.LEGAL,
-                            ApprovalRole.FINANCE,
-                            ApprovalRole.COMPLIANCE,
-                            ApprovalRole.MANAGEMENT
-                    ),
-                    DecisionPriority.HIGH,
-                    "Route contract for cross-functional review"
-            );
+        }
 
-        };
+        return new DecisionSupport(
+                recommendation,
+                rationale,
+                approvalRoles,
+                priority,
+                nextAction
+        );
     }
 }
