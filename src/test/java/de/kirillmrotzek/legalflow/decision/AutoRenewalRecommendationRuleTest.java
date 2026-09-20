@@ -11,25 +11,25 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UnlimitedLiabilityRecommendationRuleTest {
+public class AutoRenewalRecommendationRuleTest {
 
     @Test
-    void evaluate_shouldReturnRecommendation_whenUnlimitedLiabilityExists() {
+    void evaluate_shouldReturnRecommendation_whenAutoRenewalExists() {
 
         RiskFactor factor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
-                25,
-                "Contract contains unlimited liability"
+                "AUTO_RENEWAL",
+                30,
+                "Contract contains auto renewal"
         );
 
         RiskAssessment assessment = new RiskAssessment(
-                25,
-                RiskLevel.HIGH,
+                30,
+                RiskLevel.MEDIUM,
                 List.of(factor)
         );
 
-        UnlimitedLiabilityRecommendationRule rule =
-                new UnlimitedLiabilityRecommendationRule();
+        AutoRenewalRecommendationRule rule =
+                new AutoRenewalRecommendationRule();
 
         Optional<RecommendationResult> result = rule.evaluate(assessment);
 
@@ -43,7 +43,7 @@ public class UnlimitedLiabilityRecommendationRuleTest {
         );
 
         assertEquals(
-                "Contract contains unlimited liability",
+                "Contract contains auto renewal",
                 recommendation.getRationale()
         );
 
@@ -53,23 +53,23 @@ public class UnlimitedLiabilityRecommendationRuleTest {
         );
 
         assertEquals(
-                DecisionPriority.HIGH,
+                DecisionPriority.MEDIUM,
                 recommendation.getPriority()
         );
 
         assertEquals(
-                "Assign contract to Legal for review",
+                "Review notice period and renewal conditions",
                 recommendation.getNextAction()
         );
     }
 
     @Test
-    void evaluate_shouldReturnEmpty_whenUnlimitedLiabilityDoesNotExist() {
+    void evaluate_shouldReturnEmpty_whenAutoRenewalDoesNotExist(){
 
         RiskFactor factor = new RiskFactor(
-                "HIGH_CONTRACT_VALUE",
+                "UNLIMITED_LIABILITY",
                 30,
-                "Contract value exceeds € 100.000"
+                "Contract contains unlimited liability"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -78,12 +78,11 @@ public class UnlimitedLiabilityRecommendationRuleTest {
                 List.of(factor)
         );
 
-        UnlimitedLiabilityRecommendationRule rule =
-                new UnlimitedLiabilityRecommendationRule();
+        AutoRenewalRecommendationRule rule =
+                new AutoRenewalRecommendationRule();
 
         Optional<RecommendationResult> result = rule.evaluate(assessment);
 
         assertTrue(result.isEmpty());
-
     }
 }

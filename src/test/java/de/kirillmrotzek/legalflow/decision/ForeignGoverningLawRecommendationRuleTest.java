@@ -11,25 +11,25 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UnlimitedLiabilityRecommendationRuleTest {
+public class ForeignGoverningLawRecommendationRuleTest {
 
     @Test
-    void evaluate_shouldReturnRecommendation_whenUnlimitedLiabilityExists() {
+    void evaluate_shouldReturnRecommendation_whenForeignGoverningLawExists() {
 
         RiskFactor factor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
-                25,
-                "Contract contains unlimited liability"
+                "FOREIGN_GOVERNING_LAW",
+                30,
+                "Contract is governed by non-EU law"
         );
 
         RiskAssessment assessment = new RiskAssessment(
-                25,
-                RiskLevel.HIGH,
+                30,
+                RiskLevel.MEDIUM,
                 List.of(factor)
         );
 
-        UnlimitedLiabilityRecommendationRule rule =
-                new UnlimitedLiabilityRecommendationRule();
+        ForeignGoverningLawRecommendationRule rule =
+                new ForeignGoverningLawRecommendationRule();
 
         Optional<RecommendationResult> result = rule.evaluate(assessment);
 
@@ -43,7 +43,7 @@ public class UnlimitedLiabilityRecommendationRuleTest {
         );
 
         assertEquals(
-                "Contract contains unlimited liability",
+                "Contract is governed by non-EU law",
                 recommendation.getRationale()
         );
 
@@ -53,23 +53,23 @@ public class UnlimitedLiabilityRecommendationRuleTest {
         );
 
         assertEquals(
-                DecisionPriority.HIGH,
+                DecisionPriority.MEDIUM,
                 recommendation.getPriority()
         );
 
         assertEquals(
-                "Assign contract to Legal for review",
+                "Review applicable foreign law and jurisdiction provisions",
                 recommendation.getNextAction()
         );
     }
 
     @Test
-    void evaluate_shouldReturnEmpty_whenUnlimitedLiabilityDoesNotExist() {
+    void evaluate_shouldReturnEmpty_whenForeignGoverningLawDoesNotExist(){
 
         RiskFactor factor = new RiskFactor(
-                "HIGH_CONTRACT_VALUE",
+                "UNLIMITED_LIABILITY",
                 30,
-                "Contract value exceeds € 100.000"
+                "Contract contains unlimited liability"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -78,12 +78,11 @@ public class UnlimitedLiabilityRecommendationRuleTest {
                 List.of(factor)
         );
 
-        UnlimitedLiabilityRecommendationRule rule =
-                new UnlimitedLiabilityRecommendationRule();
+        ForeignGoverningLawRecommendationRule rule =
+                new ForeignGoverningLawRecommendationRule();
 
         Optional<RecommendationResult> result = rule.evaluate(assessment);
 
         assertTrue(result.isEmpty());
-
     }
 }
