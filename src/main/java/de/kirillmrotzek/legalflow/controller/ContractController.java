@@ -1,9 +1,7 @@
 package de.kirillmrotzek.legalflow.controller;
 
-import de.kirillmrotzek.legalflow.dto.ContractPageResponse;
-import de.kirillmrotzek.legalflow.dto.ContractRequest;
-import de.kirillmrotzek.legalflow.dto.ContractResponse;
-import de.kirillmrotzek.legalflow.dto.RiskAssessmentResponse;
+import de.kirillmrotzek.legalflow.decision.DecisionSupport;
+import de.kirillmrotzek.legalflow.dto.*;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
@@ -12,10 +10,12 @@ import de.kirillmrotzek.legalflow.exception.InvalidDateRangeException;
 import de.kirillmrotzek.legalflow.exception.InvalidValueRangeException;
 import de.kirillmrotzek.legalflow.exception.ValidationErrorResponse;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
+import de.kirillmrotzek.legalflow.mapper.DecisionSupportMapper;
 import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.service.ContractService;
+import de.kirillmrotzek.legalflow.service.DecisionSupportService;
 import de.kirillmrotzek.legalflow.service.RiskAssessmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,6 +50,9 @@ public class ContractController {
     private final ContractMapper contractMapper;
     private final RiskAssessmentService riskAssessmentService;
     private final RiskAssessmentMapper riskAssessmentMapper;
+    private final DecisionSupportService decisionSupportService;
+    private final DecisionSupportMapper decisionSupportMapper;
+
 
     @GetMapping
     @Operation(
@@ -202,7 +205,8 @@ public class ContractController {
     @GetMapping("/{id}/risk-assessment")
     @Operation(
             summary = "Get contract risk assessment",
-            description = "Returns the risk assessment of a contract, including its risk score, risk level, and contributing risk factors.",
+            description = "Returns the risk assessment of a contract, " +
+                    "including its risk score, risk level, and contributing risk factors.",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -349,5 +353,43 @@ public class ContractController {
         contractService.delete(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/decision-support")
+    @Operation(
+            summary = "Get decision support",
+            description = "Returns decision support for the contract, " +
+                    "including the recommendation, rationale, required approvals, " +
+                    "priority, and next action.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Decision support generated successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Contract not found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class)
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<DecisionSupportResponse> getDecisionSupport(
+            @Parameter(description = "Unique contract ID")
+            @PathVariable Long id) {
+        Contract contract = contractService.findById(id);
+
+        RiskAssessment assessment =
+                riskAssessmentService.assess(contract);
+
+        DecisionSupport decisionSupport =
+                decisionSupportService.generate(assessment);
+
+        DecisionSupportResponse decisionSupportResponse =
+                decisionSupportMapper.toDecisionSupportResponse(decisionSupport);
+
+        return ResponseEntity.ok(decisionSupportResponse);
     }
 }

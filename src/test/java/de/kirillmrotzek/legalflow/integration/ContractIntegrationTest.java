@@ -1095,4 +1095,66 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.message")
                         .value("Contract with id 999999 not found"));
     }
+
+    @Test
+    void getDecisionSupport_shouldReturnDecisionSupport() throws Exception {
+
+        String requestJson = """
+                {
+                    "title": "Risk Assessment Test Contract",
+                    "contractNumber": "RISK-API-001",
+                    "counterparty": "Siemens",
+                    "contractType": "SERVICE",
+                    "contractStatus": "ACTIVE",
+                    "startDate": "2026-08-20",
+                    "endDate": "2030-08-20",
+                    "governingLaw": "Swiss law",
+                    "contractValue": 150000,
+                    "autoRenewal": true,
+                    "unlimitedLiability": true
+                }
+                """;
+
+        String location =
+                mockMvc.perform(
+                                post("/contracts")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(requestJson)
+                        )
+                        .andExpect(status().isCreated())
+                        .andExpect(header().exists("Location"))
+                        .andReturn()
+                        .getResponse()
+                        .getHeader("Location");
+
+        mockMvc.perform(
+                        get(location + "/decision-support")
+                )
+                .andExpect(jsonPath("$.recommendation")
+                        .value("Legal review required; " +
+                                "Legal review required; " +
+                                "Finance review required; " +
+                                "Legal review required; " +
+                                "Legal review required"))
+                .andExpect(jsonPath("$.priority")
+                        .value("HIGH"))
+                .andExpect(jsonPath("$.requiredApprovals[0]")
+                        .value("LEGAL"))
+                .andExpect(jsonPath("$.requiredApprovals[1]")
+                        .value("FINANCE"))
+                .andExpect(jsonPath("$.requiredApprovals[2]")
+                        .value("MANAGEMENT"))
+                .andExpect(jsonPath("$.rationale")
+                .value("Contract contains automatic renewal; " +
+                        "Contract is governed by the law of a non-EU country; " +
+                        "Contract value exceeds € 100.000; " +
+                        "Contract term exceeds 3 years; " +
+                        "Contract contains unlimited liability"))
+                .andExpect(jsonPath("$.nextAction")
+                .value("Review notice period and renewal conditions; " +
+                        "Review applicable foreign law and jurisdiction provisions; " +
+                        "Route contract for Legal, Finance, Management approval; " +
+                        "Review contract termination and exit provisions; " +
+                        "Assign contract to Legal for review"));
+    }
 }

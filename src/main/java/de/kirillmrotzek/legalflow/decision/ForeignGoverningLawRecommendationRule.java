@@ -15,7 +15,7 @@ public class ForeignGoverningLawRecommendationRule implements RecommendationRule
 
         Optional<RiskFactor> factor = assessment.getFactors()
                 .stream()
-                .filter(f -> "FOREIGN_GOVERNING_LAW".equals(f.getCode()))
+                .filter(f -> "FOREIGN_GOVERNING_LAW_NON_EU".equals(f.getCode()))
                 .findFirst();
 
         return factor.map(f -> new RecommendationResult(

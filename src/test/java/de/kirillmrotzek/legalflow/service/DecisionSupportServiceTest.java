@@ -173,7 +173,7 @@ public class DecisionSupportServiceTest {
         );
 
         RiskFactor foreignGoverningFactor = new RiskFactor(
-                "FOREIGN_GOVERNING_LAW",
+                "FOREIGN_GOVERNING_LAW_NON_EU",
                 20,
                 "Contract is governed by non-EU law"
         );

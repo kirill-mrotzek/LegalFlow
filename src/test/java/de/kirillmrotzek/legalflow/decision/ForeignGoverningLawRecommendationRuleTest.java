@@ -17,7 +17,7 @@ public class ForeignGoverningLawRecommendationRuleTest {
     void evaluate_shouldReturnRecommendation_whenForeignGoverningLawExists() {
 
         RiskFactor factor = new RiskFactor(
-                "FOREIGN_GOVERNING_LAW",
+                "FOREIGN_GOVERNING_LAW_NON_EU",
                 30,
                 "Contract is governed by non-EU law"
         );
