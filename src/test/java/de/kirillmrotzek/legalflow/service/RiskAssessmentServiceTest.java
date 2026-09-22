@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.config.RiskProperties;
+import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.reference.EUCountryRegistry;
@@ -150,24 +151,55 @@ public class RiskAssessmentServiceTest {
         contract.setEndDate(LocalDate.of(2026, 1, 2));
         contract.setGoverningLaw("Swiss law");
 
+        RiskRuleProperties ruleProperties = new RiskRuleProperties();
+
+        RiskRuleProperties.HighContractValue highContractValue =
+                new RiskRuleProperties.HighContractValue();
+        highContractValue.setThreshold(new BigDecimal("100000"));
+        highContractValue.setPoints(30);
+        ruleProperties.setHighContractValue(highContractValue);
+
+        RiskRuleProperties.AutoRenewal autoRenewal =
+                new RiskRuleProperties.AutoRenewal();
+        autoRenewal.setPoints(10);
+        ruleProperties.setAutoRenewal(autoRenewal);
+
+        RiskRuleProperties.LongTermContract longTermContract =
+                new RiskRuleProperties.LongTermContract();
+        longTermContract.setYears(3);
+        longTermContract.setPoints(15);
+        ruleProperties.setLongTermContract(longTermContract);
+
+        RiskRuleProperties.ForeignGoverningLaw foreignGoverningLaw =
+                new RiskRuleProperties.ForeignGoverningLaw();
+        foreignGoverningLaw.setEuPoints(10);
+        foreignGoverningLaw.setNonEuPoints(20);
+        ruleProperties.setForeignGoverningLaw(foreignGoverningLaw);
+
+        RiskRuleProperties.UnlimitedLiability unlimitedLiability =
+                new RiskRuleProperties.UnlimitedLiability();
+        unlimitedLiability.setPoints(25);
+        ruleProperties.setUnlimitedLiability(unlimitedLiability);
+
         HighContractValueRule highContractValueRule =
-                new HighContractValueRule();
+                new HighContractValueRule(ruleProperties);
 
         AutoRenewalRule autoRenewalRule =
-                new AutoRenewalRule();
+                new AutoRenewalRule(ruleProperties);
 
         LongTermContractRule longTermContractRule =
-                new LongTermContractRule();
+                new LongTermContractRule(ruleProperties);
 
         ForeignGoverningRule foreignGoverningRule =
                 new ForeignGoverningRule(
                         new GoverningLawClassifier(
                                 new EUCountryRegistry()
-                        )
+                        ),
+                        ruleProperties
                 );
 
         UnlimitedLiabilityRule unlimitedLiabilityRule =
-                new UnlimitedLiabilityRule();
+                new UnlimitedLiabilityRule(ruleProperties);
 
         List<RiskRule> rules = List.of(
                 highContractValueRule,
@@ -178,7 +210,6 @@ public class RiskAssessmentServiceTest {
         );
 
         RiskProperties properties = new RiskProperties();
-
         properties.setMedium(30);
         properties.setHigh(60);
 
@@ -219,6 +250,12 @@ public class RiskAssessmentServiceTest {
                 result.getFactors().stream()
                         .anyMatch(factor ->
                                 factor.getCode().equals("FOREIGN_GOVERNING_LAW_NON_EU"))
+        );
+
+        assertTrue(
+                result.getFactors().stream()
+                        .anyMatch(factor ->
+                                factor.getCode().equals("UNLIMITED_LIABILITY"))
         );
     }
 }

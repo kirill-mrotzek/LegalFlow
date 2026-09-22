@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.risk;
 
+import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.reference.EUCountryRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,10 +17,22 @@ public class ForeignGoverningRuleTest {
 
     @BeforeEach
     void setUp() {
+
+        RiskRuleProperties properties = new RiskRuleProperties();
+
+        RiskRuleProperties.ForeignGoverningLaw foreignGoverningLaw =
+                new RiskRuleProperties.ForeignGoverningLaw();
+
+        foreignGoverningLaw.setEuPoints(10);
+        foreignGoverningLaw.setNonEuPoints(20);
+
+        properties.setForeignGoverningLaw(foreignGoverningLaw);
+
         rule = new ForeignGoverningRule(
                 new GoverningLawClassifier(
                         new EUCountryRegistry()
-                )
+                ),
+                properties
         );
     }
 

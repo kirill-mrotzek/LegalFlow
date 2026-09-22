@@ -36,6 +36,3 @@ public class RiskAssessmentService {
         return new RiskAssessment(score, riskLevel, factors);
     }
 }
-
-
-

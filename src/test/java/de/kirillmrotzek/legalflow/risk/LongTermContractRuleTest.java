@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.risk;
 
+import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,18 @@ public class LongTermContractRuleTest {
 
     @BeforeEach
     void setUp() {
-        rule = new LongTermContractRule();
+
+        RiskRuleProperties properties = new RiskRuleProperties();
+
+        RiskRuleProperties.LongTermContract longTermContract =
+                new RiskRuleProperties.LongTermContract();
+
+        longTermContract.setYears(3);
+        longTermContract.setPoints(15);
+
+        properties.setLongTermContract(longTermContract);
+
+        rule = new LongTermContractRule(properties);
     }
 
     @Test
@@ -66,5 +78,32 @@ public class LongTermContractRuleTest {
         Optional<RiskFactor> result = rule.evaluate(contract);
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void evaluate_shouldUseConfiguredYearsAndPoints() {
+
+        RiskRuleProperties properties = new RiskRuleProperties();
+
+        RiskRuleProperties.LongTermContract longTermContract =
+                new RiskRuleProperties.LongTermContract();
+
+        longTermContract.setYears(5);
+        longTermContract.setPoints(25);
+
+        properties.setLongTermContract(longTermContract);
+
+        LongTermContractRule configuredRule =
+                new LongTermContractRule(properties);
+
+        Contract contract = new Contract();
+        contract.setStartDate(LocalDate.of(2023, 1, 1));
+        contract.setEndDate(LocalDate.of(2028, 1, 2));
+
+        Optional<RiskFactor> result = configuredRule.evaluate(contract);
+
+        assertTrue(result.isPresent());
+        assertEquals("LONG_TERM_CONTRACT", result.get().getCode());
+        assertEquals(25, result.get().getPoints());
     }
 }

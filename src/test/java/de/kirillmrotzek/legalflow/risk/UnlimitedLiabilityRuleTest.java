@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.risk;
 
+import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,17 @@ public class UnlimitedLiabilityRuleTest {
 
     @BeforeEach
     void setUp() {
-        rule = new UnlimitedLiabilityRule();
+
+        RiskRuleProperties properties = new RiskRuleProperties();
+
+        RiskRuleProperties.UnlimitedLiability unlimitedLiability =
+                new RiskRuleProperties.UnlimitedLiability();
+
+        unlimitedLiability.setPoints(25);
+
+        properties.setUnlimitedLiability(unlimitedLiability);
+
+        rule = new UnlimitedLiabilityRule(properties);
     }
 
     @Test
@@ -51,5 +62,29 @@ public class UnlimitedLiabilityRuleTest {
         Optional<RiskFactor> result = rule.evaluate(contract);
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void evaluate_shouldUseConfiguredPoints() {
+
+        RiskRuleProperties properties = new RiskRuleProperties();
+
+        RiskRuleProperties.UnlimitedLiability unlimitedLiability =
+                new RiskRuleProperties.UnlimitedLiability();
+
+        unlimitedLiability.setPoints(40);
+
+        properties.setUnlimitedLiability(unlimitedLiability);
+
+        UnlimitedLiabilityRule configuredRule =
+                new UnlimitedLiabilityRule(properties);
+
+        Contract contract = new Contract();
+        contract.setUnlimitedLiability(true);
+
+        Optional<RiskFactor> result = configuredRule.evaluate(contract);
+
+        assertTrue(result.isPresent());
+        assertEquals(40, result.get().getPoints());
     }
 }

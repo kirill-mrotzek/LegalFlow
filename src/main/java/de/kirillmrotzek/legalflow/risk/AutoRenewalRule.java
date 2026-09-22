@@ -1,12 +1,17 @@
 package de.kirillmrotzek.legalflow.risk;
 
+import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
 import de.kirillmrotzek.legalflow.model.Contract;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class AutoRenewalRule implements RiskRule {
+
+    private final RiskRuleProperties properties;
 
     @Override
     public Optional<RiskFactor> evaluate(Contract contract) {
@@ -16,12 +21,13 @@ public class AutoRenewalRule implements RiskRule {
             return Optional.of(
                     new RiskFactor(
                             "AUTO_RENEWAL",
-                            10,
+                            properties.getAutoRenewal().getPoints(),
                             "Contract contains automatic renewal",
                             "Automatic renewal can extend contractual obligations if termination deadlines are missed"
                     )
             );
         }
+
         return Optional.empty();
     }
 }

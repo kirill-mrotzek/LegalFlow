@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.risk;
 
+import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,18 @@ public class HighContractValueRuleTest {
 
     @BeforeEach
     void setUp() {
-        rule = new HighContractValueRule();
+
+        RiskRuleProperties properties = new RiskRuleProperties();
+
+        RiskRuleProperties.HighContractValue highContractValue =
+                new RiskRuleProperties.HighContractValue();
+
+        highContractValue.setThreshold(new BigDecimal("100000"));
+        highContractValue.setPoints(30);
+
+        properties.setHighContractValue(highContractValue);
+
+        rule = new HighContractValueRule(properties);
     }
 
     @Test
@@ -68,5 +80,31 @@ public class HighContractValueRuleTest {
         Optional<RiskFactor> result = rule.evaluate(contract);
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void evaluate_shouldUseConfiguredThresholdAndPoints() {
+
+        RiskRuleProperties properties = new RiskRuleProperties();
+
+        RiskRuleProperties.HighContractValue highContractValue =
+                new RiskRuleProperties.HighContractValue();
+
+        highContractValue.setThreshold(new BigDecimal("200000"));
+        highContractValue.setPoints(50);
+
+        properties.setHighContractValue(highContractValue);
+
+        HighContractValueRule configuredRule =
+                new HighContractValueRule(properties);
+
+        Contract contract = new Contract();
+        contract.setContractValue(new BigDecimal("250000"));
+
+        Optional<RiskFactor> result = configuredRule.evaluate(contract);
+
+        assertTrue(result.isPresent());
+        assertEquals("HIGH_CONTRACT_VALUE", result.get().getCode());
+        assertEquals(50, result.get().getPoints());
     }
 }
