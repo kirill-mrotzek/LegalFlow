@@ -19,7 +19,8 @@ public class ForeignGoverningLawRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "FOREIGN_GOVERNING_LAW_NON_EU",
                 30,
-                "Contract is governed by non-EU law"
+                "Contract is governed by non-EU law",
+                "Non-EU governing law increases legal complexity and potential enforcement risk"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -69,7 +70,8 @@ public class ForeignGoverningLawRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "UNLIMITED_LIABILITY",
                 30,
-                "Contract contains unlimited liability"
+                "Contract contains unlimited liability",
+                "Unlimited liability increases potential financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(

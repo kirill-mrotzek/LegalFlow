@@ -1582,7 +1582,8 @@ class ContractControllerTest {
         RiskFactor factor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds € 100.000"
+                "Contract value exceeds € 100.000",
+                "High contract value increases potential financial exposure"
         );
 
         List<RiskFactor> factors = List.of(factor);
@@ -1607,6 +1608,9 @@ class ContractControllerTest {
         factorResponse.setCode("HIGH_CONTRACT_VALUE");
         factorResponse.setPoints(30);
         factorResponse.setReason("Contract value exceeds € 100.000");
+        factorResponse.setRiskExplanation(
+                "High contract value increases potential financial exposure"
+        );
 
         RiskAssessmentResponse response = new RiskAssessmentResponse();
         response.setScore(30);
@@ -1625,12 +1629,13 @@ class ContractControllerTest {
                 .andExpect(jsonPath("$.factors[0].code").value("HIGH_CONTRACT_VALUE"))
                 .andExpect(jsonPath("$.factors[0].points").value(30))
                 .andExpect(jsonPath("$.factors[0].reason")
-                        .value("Contract value exceeds € 100.000"));
+                        .value("Contract value exceeds € 100.000"))
+                .andExpect(jsonPath("$.factors[0].riskExplanation")
+                .value("High contract value increases potential financial exposure"));
 
         verify(contractService).findById(1L);
         verify(riskAssessmentService).assess(contract);
         verify(riskAssessmentMapper).toResponse(assessment);
-
     }
 
     @Test
@@ -1652,7 +1657,8 @@ class ContractControllerTest {
         RiskFactor factor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds € 100.000"
+                "Contract value exceeds € 100.000",
+                "High contract value increases potential financial exposure"
         );
 
         List<RiskFactor> factors = List.of(factor);

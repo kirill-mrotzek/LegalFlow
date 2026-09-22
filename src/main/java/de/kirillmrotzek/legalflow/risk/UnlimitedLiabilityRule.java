@@ -16,7 +16,8 @@ public class UnlimitedLiabilityRule implements RiskRule {
                     new RiskFactor(
                             "UNLIMITED_LIABILITY",
                             25,
-                            "Contract contains unlimited liability"
+                            "Contract contains unlimited liability",
+                            "Unlimited liability increases potential financial exposure"
                     )
             );
         }

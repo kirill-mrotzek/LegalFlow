@@ -12,4 +12,6 @@ public class RiskFactor {
     private final int points;
 
     private final String reason;
+
+    private final String riskExplanation;
 }

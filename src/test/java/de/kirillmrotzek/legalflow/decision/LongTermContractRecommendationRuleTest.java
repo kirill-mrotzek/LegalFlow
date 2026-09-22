@@ -19,7 +19,8 @@ public class LongTermContractRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "LONG_TERM_CONTRACT",
                 30,
-                "Long term Contract"
+                "Long term Contract",
+                "Long contract terms increase the duration of legal and financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -69,7 +70,8 @@ public class LongTermContractRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "UNLIMITED_LIABILITY",
                 30,
-                "Contract contains unlimited liability"
+                "Contract contains unlimited liability",
+                "Unlimited liability increases potential financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(

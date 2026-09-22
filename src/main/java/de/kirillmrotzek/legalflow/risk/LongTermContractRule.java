@@ -27,11 +27,11 @@ public class LongTermContractRule implements RiskRule {
                     new RiskFactor(
                             "LONG_TERM_CONTRACT",
                             15,
-                            "Contract term exceeds 3 years"
+                            "Contract term exceeds 3 years",
+                            "Long contract terms increase the duration of legal and financial exposure"
                     )
             );
         }
-
         return Optional.empty();
     }
 }

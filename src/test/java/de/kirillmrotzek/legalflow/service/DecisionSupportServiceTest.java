@@ -18,7 +18,8 @@ public class DecisionSupportServiceTest {
         RiskFactor factor = new RiskFactor(
                 "UNLIMITED_LIABILITY",
                 25,
-                "Contract contains unlimited liability"
+                "Contract contains unlimited liability",
+                "Unlimited liability increases potential financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -107,13 +108,15 @@ public class DecisionSupportServiceTest {
         RiskFactor highValueFactor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds € 100.000"
+                "Contract value exceeds € 100.000",
+                "High contract value increases potential financial exposure"
         );
 
         RiskFactor unlimitedLiabilityFactor = new RiskFactor(
                 "UNLIMITED_LIABILITY",
                 25,
-                "Contract contains unlimited liability"
+                "Contract contains unlimited liability",
+                "Unlimited liability increases potential financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -157,31 +160,36 @@ public class DecisionSupportServiceTest {
         RiskFactor highValueFactor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds € 100.000"
+                "Contract value exceeds € 100.000",
+                "High contract value increases potential financial exposure"
         );
 
         RiskFactor unlimitedLiabilityFactor = new RiskFactor(
                 "UNLIMITED_LIABILITY",
                 25,
-                "Contract contains unlimited liability"
+                "Contract contains unlimited liability",
+                "Unlimited liability increases potential financial exposure"
         );
 
         RiskFactor longTermFactor = new RiskFactor(
                 "LONG_TERM_CONTRACT",
                 15,
-                "Long term Contract"
+                "Long term Contract",
+                "Long contract terms increase the duration of legal and financial exposure"
         );
 
         RiskFactor foreignGoverningFactor = new RiskFactor(
                 "FOREIGN_GOVERNING_LAW_NON_EU",
                 20,
-                "Contract is governed by non-EU law"
+                "Contract is governed by non-EU law",
+                "Non-EU governing law increases legal complexity and potential enforcement risk"
         );
 
         RiskFactor autoRenewalFactor = new RiskFactor(
                 "AUTO_RENEWAL",
                 10,
-                "Contract contains auto renewal"
+                "Contract contains auto renewal",
+                "Automatic renewal can extend contractual obligations if termination deadlines are missed"
         );
 
         RiskAssessment assessment = new RiskAssessment(

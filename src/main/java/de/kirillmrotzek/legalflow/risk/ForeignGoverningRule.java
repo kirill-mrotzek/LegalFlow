@@ -31,7 +31,8 @@ public class ForeignGoverningRule implements RiskRule {
                             new RiskFactor(
                                     "FOREIGN_GOVERNING_LAW_EU",
                                     10,
-                                    "Contract is governed by the law of an EU Member State"
+                                    "Contract is governed by the law of an EU Member State",
+                                    "EU governing law may require additional legal review of applicable foreign law"
                             )
                     );
 
@@ -40,7 +41,8 @@ public class ForeignGoverningRule implements RiskRule {
                             new RiskFactor(
                                     "FOREIGN_GOVERNING_LAW_NON_EU",
                                     20,
-                                    "Contract is governed by the law of a non-EU country"
+                                    "Contract is governed by the law of a non-EU country",
+                                    "Non-EU governing law increases legal complexity and potential enforcement risk"
                             )
                     );
         };

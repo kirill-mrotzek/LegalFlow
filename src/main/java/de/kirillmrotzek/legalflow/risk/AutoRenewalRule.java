@@ -17,11 +17,11 @@ public class AutoRenewalRule implements RiskRule {
                     new RiskFactor(
                             "AUTO_RENEWAL",
                             10,
-                            "Contract contains automatic renewal"
+                            "Contract contains automatic renewal",
+                            "Automatic renewal can extend contractual obligations if termination deadlines are missed"
                     )
             );
         }
-
         return Optional.empty();
     }
 }

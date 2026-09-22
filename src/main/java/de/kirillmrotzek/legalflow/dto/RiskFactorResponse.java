@@ -10,4 +10,6 @@ public class RiskFactorResponse {
     private int points;
 
     private String reason;
+
+    private String riskExplanation;
 }

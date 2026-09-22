@@ -19,7 +19,8 @@ public class AutoRenewalRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "AUTO_RENEWAL",
                 30,
-                "Contract contains auto renewal"
+                "Contract contains auto renewal",
+                "Automatic renewal can extend contractual obligations if termination deadlines are missed"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -69,7 +70,8 @@ public class AutoRenewalRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "UNLIMITED_LIABILITY",
                 30,
-                "Contract contains unlimited liability"
+                "Contract contains unlimited liability",
+                "Unlimited liability increases potential financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(

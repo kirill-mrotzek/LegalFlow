@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static de.kirillmrotzek.legalflow.enums.RiskLevel.HIGH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -26,7 +25,8 @@ public class RiskAssessmentServiceTest {
         RiskFactor factor = new RiskFactor(
                 "TEST_RISK",
                 30,
-                "Test risk factor"
+                "Test risk factor",
+                "Test risk explanation"
         );
 
         when(rule.evaluate(any(Contract.class)))
@@ -97,13 +97,15 @@ public class RiskAssessmentServiceTest {
         RiskFactor firstFactor = new RiskFactor(
                 "FIRST_RISK",
                 30,
-                "First risk factor"
+                "First risk factor",
+                "First risk explanation"
         );
 
         RiskFactor secondFactor = new RiskFactor(
                 "SECOND_RISK",
                 20,
-                "Second risk factor"
+                "Second risk factor",
+                "Second risk explanation"
         );
 
         when(firstRule.evaluate(any(Contract.class)))
@@ -220,5 +222,3 @@ public class RiskAssessmentServiceTest {
         );
     }
 }
-
-

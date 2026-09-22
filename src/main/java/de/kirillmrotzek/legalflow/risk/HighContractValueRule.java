@@ -18,7 +18,8 @@ public class HighContractValueRule implements RiskRule {
                     new RiskFactor(
                             "HIGH_CONTRACT_VALUE",
                             30,
-                            "Contract value exceeds € 100.000"
+                            "Contract value exceeds € 100.000",
+                            "High contract value increases potential financial exposure"
                     )
             );
         }

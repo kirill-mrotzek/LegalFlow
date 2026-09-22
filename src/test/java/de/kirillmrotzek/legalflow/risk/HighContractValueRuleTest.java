@@ -31,6 +31,10 @@ public class HighContractValueRuleTest {
 
         assertEquals("HIGH_CONTRACT_VALUE", result.get().getCode());
         assertEquals(30, result.get().getPoints());
+        assertEquals(
+                "High contract value increases potential financial exposure",
+                result.get().getRiskExplanation()
+        );
     }
 
     @Test

@@ -19,7 +19,8 @@ public class UnlimitedLiabilityRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "UNLIMITED_LIABILITY",
                 25,
-                "Contract contains unlimited liability"
+                "Contract contains unlimited liability",
+                "Unlimited liability increases potential financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -69,7 +70,8 @@ public class UnlimitedLiabilityRecommendationRuleTest {
         RiskFactor factor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds € 100.000"
+                "Contract value exceeds € 100.000",
+                "High contract value increases potential financial exposure"
         );
 
         RiskAssessment assessment = new RiskAssessment(

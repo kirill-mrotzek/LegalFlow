@@ -27,7 +27,8 @@ class RiskAssessmentMapperTest {
         RiskFactor factor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds €100.000"
+                "Contract value exceeds €100.000",
+                "High contract value increases potential financial exposure"
         );
 
         RiskFactorResponse result = mapper.toResponse(factor);
@@ -46,6 +47,10 @@ class RiskAssessmentMapperTest {
                 "Contract value exceeds €100.000",
                 result.getReason()
         );
+        assertEquals(
+                "High contract value increases potential financial exposure",
+                result.getRiskExplanation()
+        );
     }
 
     @Test
@@ -54,13 +59,15 @@ class RiskAssessmentMapperTest {
         RiskFactor firstFactor = new RiskFactor(
                 "HIGH_CONTRACT_VALUE",
                 30,
-                "Contract value exceeds €100.000"
+                "Contract value exceeds €100.000",
+                "High contract value increases potential financial exposure"
         );
 
         RiskFactor secondFactor = new RiskFactor(
                 "AUTO_RENEWAL",
                 10,
-                "Contract contains automatic renewal"
+                "Contract contains automatic renewal",
+                "Automatic renewal can extend contractual obligations if termination deadlines are missed"
         );
 
         RiskAssessment assessment = new RiskAssessment(
@@ -108,6 +115,14 @@ class RiskAssessmentMapperTest {
         assertEquals(
                 "Contract contains automatic renewal",
                 result.getFactors().get(1).getReason()
+        );
+        assertEquals(
+                "High contract value increases potential financial exposure",
+                result.getFactors().get(0).getRiskExplanation()
+        );
+        assertEquals(
+                "Automatic renewal can extend contractual obligations if termination deadlines are missed",
+                result.getFactors().get(1).getRiskExplanation()
         );
     }
 }
