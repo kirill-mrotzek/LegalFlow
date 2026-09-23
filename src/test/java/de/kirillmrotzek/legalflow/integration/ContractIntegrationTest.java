@@ -728,7 +728,7 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.counterparty")
                         .value("Updated Company"))
                 .andExpect(jsonPath("$.contractStatus")
-                        .value("ACTIVE"))
+                        .value("DRAFT"))
                 .andExpect(jsonPath("$.riskLevel")
                         .value("HIGH"))
                 .andExpect(jsonPath("$.contractValue")

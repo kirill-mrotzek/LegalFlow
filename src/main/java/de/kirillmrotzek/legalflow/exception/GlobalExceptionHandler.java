@@ -94,4 +94,16 @@ public class GlobalExceptionHandler {
                         ex.getMessage()
                 ));
     }
+
+    @ExceptionHandler(InvalidContractStatusTransitionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidContractStatusTransition(
+            InvalidContractStatusTransitionException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        ex.getMessage()
+                ));
+    }
 }

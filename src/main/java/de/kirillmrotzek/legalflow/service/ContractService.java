@@ -126,7 +126,6 @@ public class ContractService {
         existingContract.setContractNumber(contract.getContractNumber());
         existingContract.setCounterparty(contract.getCounterparty());
         existingContract.setContractType(contract.getContractType());
-        existingContract.setContractStatus(contract.getContractStatus());
         existingContract.setUnlimitedLiability(
                 contract.getUnlimitedLiability()
         );

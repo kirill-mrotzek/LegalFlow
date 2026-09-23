@@ -500,7 +500,6 @@ class ContractServiceTest {
         newContract.setContractNumber("SERVICE-002");
         newContract.setCounterparty("Microsoft");
         newContract.setContractType(ContractType.SERVICE);
-        newContract.setContractStatus(ContractStatus.ACTIVE);
         newContract.setStartDate(LocalDate.of(2026, 9, 1));
         newContract.setEndDate(LocalDate.of(2027, 9, 1));
         newContract.setGoverningLaw("Austrian Law");
@@ -565,7 +564,7 @@ class ContractServiceTest {
         );
 
         assertEquals(
-                ContractStatus.ACTIVE,
+                ContractStatus.DRAFT,
                 existingContract.getContractStatus()
         );
 

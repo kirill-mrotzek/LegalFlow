@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.controller;
 
+import de.kirillmrotzek.legalflow.service.ContractLifecycleService;
 import de.kirillmrotzek.legalflow.decision.DecisionSupport;
 import de.kirillmrotzek.legalflow.dto.*;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
@@ -52,7 +53,7 @@ public class ContractController {
     private final RiskAssessmentMapper riskAssessmentMapper;
     private final DecisionSupportService decisionSupportService;
     private final DecisionSupportMapper decisionSupportMapper;
-
+    private final ContractLifecycleService contractLifecycleService;
 
     @GetMapping
     @Operation(
@@ -321,6 +322,58 @@ public class ContractController {
 
         Contract updatedContract =
                 contractService.update(id, contract);
+
+        return ResponseEntity.ok(
+                contractMapper.toResponse(updatedContract)
+        );
+    }
+
+    @PatchMapping("/{id}/status")
+    @Operation(
+            summary = "Change contract status",
+            description =
+                    "Changes the lifecycle status of a contract. " +
+                            "The requested transition must be allowed by the contract lifecycle rules.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Contract status changed successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid status transition or request",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            oneOf = {
+                                                    ErrorResponse.class,
+                                                    ValidationErrorResponse.class
+                                            }
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Contract not found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    )
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<ContractResponse> changeContractStatus(
+            @Parameter(description = "Unique contract ID")
+            @PathVariable Long id,
+            @Valid @RequestBody ChangeContractStatusRequest request) {
+
+        Contract updatedContract =
+                contractLifecycleService.changeStatus(
+                        id,
+                        request.getStatus()
+                );
 
         return ResponseEntity.ok(
                 contractMapper.toResponse(updatedContract)
