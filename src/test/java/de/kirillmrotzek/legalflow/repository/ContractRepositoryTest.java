@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.repository;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class ContractRepositoryTest {
         contract.setContractNumber("NDA-001");
         contract.setContractType(ContractType.NDA);
         contract.setContractStatus(ContractStatus.DRAFT);
+        contract.setReviewStatus(ReviewStatus.PENDING);
         contract.setRiskLevel(RiskLevel.LOW);
         contract.setStartDate(LocalDate.of(2026, 1, 1));
         contract.setEndDate(LocalDate.of(2026, 12, 31));
@@ -50,6 +52,7 @@ class ContractRepositoryTest {
         assertEquals("NDA-001", result.get().getContractNumber());
         assertEquals(ContractType.NDA, result.get().getContractType());
         assertEquals(ContractStatus.DRAFT, result.get().getContractStatus());
+        assertEquals(ReviewStatus.PENDING, result.get().getReviewStatus());
         assertEquals(RiskLevel.LOW, result.get().getRiskLevel());
         assertEquals(
                 LocalDate.of(2026, 1, 1),
@@ -70,6 +73,7 @@ class ContractRepositoryTest {
         contract1.setContractNumber("NDA-001");
         contract1.setContractType(ContractType.NDA);
         contract1.setContractStatus(ContractStatus.DRAFT);
+        contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setRiskLevel(RiskLevel.LOW);
         contract1.setStartDate(LocalDate.of(2026, 1, 1));
         contract1.setEndDate(LocalDate.of(2026, 12, 31));
@@ -80,6 +84,7 @@ class ContractRepositoryTest {
         contract2.setContractNumber("SA-001");
         contract2.setContractType(ContractType.SERVICE);
         contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setRiskLevel(RiskLevel.MEDIUM);
         contract2.setStartDate(LocalDate.of(2026, 2, 1));
         contract2.setEndDate(LocalDate.of(2027, 1, 31));
@@ -104,6 +109,7 @@ class ContractRepositoryTest {
         contract1.setContractNumber("NDA-001");
         contract1.setContractType(ContractType.NDA);
         contract1.setContractStatus(ContractStatus.DRAFT);
+        contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setRiskLevel(RiskLevel.LOW);
         contract1.setStartDate(LocalDate.of(2026, 1, 1));
         contract1.setEndDate(LocalDate.of(2026, 12, 31));
@@ -115,6 +121,7 @@ class ContractRepositoryTest {
         contract2.setContractNumber("NDA-001");
         contract2.setContractType(ContractType.NDA);
         contract2.setContractStatus(ContractStatus.DRAFT);
+        contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setRiskLevel(RiskLevel.LOW);
         contract2.setStartDate(LocalDate.of(2026, 2, 1));
         contract2.setEndDate(LocalDate.of(2026, 12, 31));

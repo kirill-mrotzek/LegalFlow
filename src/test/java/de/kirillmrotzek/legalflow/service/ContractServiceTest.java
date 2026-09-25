@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
@@ -70,6 +71,10 @@ class ContractServiceTest {
         assertEquals(
                 RiskLevel.HIGH,
                 contract.getRiskLevel()
+        );
+        assertEquals(
+                ReviewStatus.PENDING,
+                contract.getReviewStatus()
         );
 
         verify(contractRepository).save(contract);

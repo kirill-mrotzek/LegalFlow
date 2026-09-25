@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.dto;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class ContractResponse {
     private String counterparty;
     private ContractType contractType;
     private ContractStatus contractStatus;
+    private ReviewStatus reviewStatus;
     private RiskLevel riskLevel;
     private LocalDate startDate;
     private LocalDate endDate;

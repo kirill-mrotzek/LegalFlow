@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.integration;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
@@ -49,8 +50,6 @@ class ContractIntegrationTest {
                     "contractNumber": "INT-NDA-001",
                     "counterparty": "Microsoft",
                     "contractType": "NDA",
-                    "contractStatus": "DRAFT",
-                    "riskLevel": "LOW",
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -71,7 +70,10 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.contractNumber")
                         .value("INT-NDA-001"))
                 .andExpect(jsonPath("$.counterparty")
-                        .value("Microsoft"));
+                        .value("Microsoft"))
+                .andExpect(jsonPath("$.contractStatus").value("DRAFT"))
+                .andExpect(jsonPath("$.reviewStatus").value("PENDING"))
+                .andExpect(jsonPath("$.riskLevel").value("LOW"));
 
         Contract savedContract =
                 contractRepository.findAll()
@@ -105,7 +107,6 @@ class ContractIntegrationTest {
                     "contractNumber": "INT-SERVICE-001",
                     "counterparty": "Siemens",
                     "contractType": "SERVICE",
-                    "contractStatus": "ACTIVE",                
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -141,9 +142,11 @@ class ContractIntegrationTest {
                 .andExpect(jsonPath("$.contractType")
                         .value("SERVICE"))
                 .andExpect(jsonPath("$.contractStatus")
-                        .value("ACTIVE"))
+                        .value("DRAFT"))
                 .andExpect(jsonPath("$.riskLevel")
-                        .value("LOW"));
+                        .value("LOW"))
+                .andExpect(jsonPath("$.reviewStatus")
+                        .value("PENDING"));
     }
 
     @Test
@@ -154,6 +157,7 @@ class ContractIntegrationTest {
         contract1.setTitle("Important Service Agreement");
         contract1.setCounterparty("Acme GmbH");
         contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.MEDIUM);
         contract1.setContractValue(new BigDecimal("25000"));
@@ -165,6 +169,7 @@ class ContractIntegrationTest {
         contract2.setTitle("Small Service Agreement");
         contract2.setCounterparty("Beta GmbH");
         contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SERVICE);
         contract2.setRiskLevel(RiskLevel.LOW);
         contract2.setContractValue(new BigDecimal("5000"));
@@ -176,6 +181,7 @@ class ContractIntegrationTest {
         contract3.setTitle("Confidentiality Agreement");
         contract3.setCounterparty("Gamma GmbH");
         contract3.setContractStatus(ContractStatus.ACTIVE);
+        contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.NDA);
         contract3.setRiskLevel(RiskLevel.HIGH);
         contract3.setContractValue(new BigDecimal("30000"));
@@ -214,6 +220,7 @@ class ContractIntegrationTest {
         contract1.setTitle("Contract Before Range");
         contract1.setCounterparty("Company A");
         contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.LOW);
         contract1.setContractValue(new BigDecimal("10000"));
@@ -225,6 +232,7 @@ class ContractIntegrationTest {
         contract2.setTitle("Contract In Range");
         contract2.setCounterparty("Company B");
         contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SERVICE);
         contract2.setRiskLevel(RiskLevel.MEDIUM);
         contract2.setContractValue(new BigDecimal("20000"));
@@ -236,6 +244,7 @@ class ContractIntegrationTest {
         contract3.setTitle("Contract After Range");
         contract3.setCounterparty("Company C");
         contract3.setContractStatus(ContractStatus.ACTIVE);
+        contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.SERVICE);
         contract3.setRiskLevel(RiskLevel.HIGH);
         contract3.setContractValue(new BigDecimal("30000"));
@@ -273,6 +282,7 @@ class ContractIntegrationTest {
         contract1.setTitle("Contract Before End Date Range");
         contract1.setCounterparty("Company A");
         contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.LOW);
         contract1.setContractValue(new BigDecimal("10000"));
@@ -284,6 +294,7 @@ class ContractIntegrationTest {
         contract2.setTitle("Contract In End Date Range");
         contract2.setCounterparty("Company B");
         contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SERVICE);
         contract2.setRiskLevel(RiskLevel.MEDIUM);
         contract2.setContractValue(new BigDecimal("20000"));
@@ -295,6 +306,7 @@ class ContractIntegrationTest {
         contract3.setTitle("Contract After End Date Range");
         contract3.setCounterparty("Company C");
         contract3.setContractStatus(ContractStatus.ACTIVE);
+        contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.SERVICE);
         contract3.setRiskLevel(RiskLevel.HIGH);
         contract3.setContractValue(new BigDecimal("30000"));
@@ -385,6 +397,7 @@ class ContractIntegrationTest {
         lowRisk.setTitle("Low Risk Contract");
         lowRisk.setCounterparty("Company A");
         lowRisk.setContractStatus(ContractStatus.ACTIVE);
+        lowRisk.setReviewStatus(ReviewStatus.PENDING);
         lowRisk.setContractType(ContractType.SERVICE);
         lowRisk.setRiskLevel(RiskLevel.LOW);
         lowRisk.setContractValue(new BigDecimal("10000"));
@@ -396,6 +409,7 @@ class ContractIntegrationTest {
         mediumRisk.setTitle("Medium Risk Contract");
         mediumRisk.setCounterparty("Company B");
         mediumRisk.setContractStatus(ContractStatus.ACTIVE);
+        mediumRisk.setReviewStatus(ReviewStatus.PENDING);
         mediumRisk.setContractType(ContractType.SERVICE);
         mediumRisk.setRiskLevel(RiskLevel.MEDIUM);
         mediumRisk.setContractValue(new BigDecimal("20000"));
@@ -407,6 +421,7 @@ class ContractIntegrationTest {
         highRisk.setTitle("High Risk Contract");
         highRisk.setCounterparty("Company C");
         highRisk.setContractStatus(ContractStatus.ACTIVE);
+        highRisk.setReviewStatus(ReviewStatus.PENDING);
         highRisk.setContractType(ContractType.SERVICE);
         highRisk.setRiskLevel(RiskLevel.HIGH);
         highRisk.setContractValue(new BigDecimal("30000"));
@@ -445,6 +460,7 @@ class ContractIntegrationTest {
         contract1.setTitle("Microsoft Service Agreement");
         contract1.setCounterparty("Microsoft");
         contract1.setContractStatus(ContractStatus.ACTIVE);
+        contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.MEDIUM);
         contract1.setContractValue(new BigDecimal("25000"));
@@ -456,6 +472,7 @@ class ContractIntegrationTest {
         contract2.setTitle("Siemens Supply Agreement");
         contract2.setCounterparty("Siemens");
         contract2.setContractStatus(ContractStatus.ACTIVE);
+        contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SUPPLIER);
         contract2.setRiskLevel(RiskLevel.LOW);
         contract2.setContractValue(new BigDecimal("15000"));
@@ -467,6 +484,7 @@ class ContractIntegrationTest {
         contract3.setTitle("Microsoft NDA");
         contract3.setCounterparty("Microsoft");
         contract3.setContractStatus(ContractStatus.DRAFT);
+        contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.NDA);
         contract3.setRiskLevel(RiskLevel.HIGH);
         contract3.setContractValue(new BigDecimal("5000"));
@@ -503,6 +521,7 @@ class ContractIntegrationTest {
         matchingContract.setTitle("Matching Contract");
         matchingContract.setCounterparty("Company A");
         matchingContract.setContractStatus(ContractStatus.ACTIVE);
+        matchingContract.setReviewStatus(ReviewStatus.PENDING);
         matchingContract.setContractType(ContractType.SERVICE);
         matchingContract.setRiskLevel(RiskLevel.HIGH);
         matchingContract.setContractValue(new BigDecimal("50000"));
@@ -514,6 +533,7 @@ class ContractIntegrationTest {
         wrongStatus.setTitle("Wrong Status");
         wrongStatus.setCounterparty("Company B");
         wrongStatus.setContractStatus(ContractStatus.DRAFT);
+        wrongStatus.setReviewStatus(ReviewStatus.PENDING);
         wrongStatus.setContractType(ContractType.SERVICE);
         wrongStatus.setRiskLevel(RiskLevel.HIGH);
         wrongStatus.setContractValue(new BigDecimal("50000"));
@@ -525,6 +545,7 @@ class ContractIntegrationTest {
         wrongRisk.setTitle("Wrong Risk");
         wrongRisk.setCounterparty("Company C");
         wrongRisk.setContractStatus(ContractStatus.ACTIVE);
+        wrongRisk.setReviewStatus(ReviewStatus.PENDING);
         wrongRisk.setContractType(ContractType.SERVICE);
         wrongRisk.setRiskLevel(RiskLevel.MEDIUM);
         wrongRisk.setContractValue(new BigDecimal("50000"));
@@ -536,6 +557,7 @@ class ContractIntegrationTest {
         wrongValue.setTitle("Wrong Value");
         wrongValue.setCounterparty("Company D");
         wrongValue.setContractStatus(ContractStatus.ACTIVE);
+        wrongValue.setReviewStatus(ReviewStatus.PENDING);
         wrongValue.setContractType(ContractType.SERVICE);
         wrongValue.setRiskLevel(RiskLevel.HIGH);
         wrongValue.setContractValue(new BigDecimal("5000"));
@@ -547,6 +569,7 @@ class ContractIntegrationTest {
         wrongStartDate.setTitle("Wrong Start Date");
         wrongStartDate.setCounterparty("Company E");
         wrongStartDate.setContractStatus(ContractStatus.ACTIVE);
+        wrongStartDate.setReviewStatus(ReviewStatus.PENDING);
         wrongStartDate.setContractType(ContractType.SERVICE);
         wrongStartDate.setRiskLevel(RiskLevel.HIGH);
         wrongStartDate.setContractValue(new BigDecimal("50000"));
@@ -558,6 +581,7 @@ class ContractIntegrationTest {
         wrongEndDate.setTitle("Wrong End Date");
         wrongEndDate.setCounterparty("Company F");
         wrongEndDate.setContractStatus(ContractStatus.ACTIVE);
+        wrongEndDate.setReviewStatus(ReviewStatus.PENDING);
         wrongEndDate.setContractType(ContractType.SERVICE);
         wrongEndDate.setRiskLevel(RiskLevel.HIGH);
         wrongEndDate.setContractValue(new BigDecimal("50000"));
@@ -676,7 +700,6 @@ class ContractIntegrationTest {
                     "contractNumber": "UPDATE-001",
                     "counterparty": "Original Company",
                     "contractType": "SERVICE",
-                    "contractStatus": "DRAFT",               
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -705,7 +728,6 @@ class ContractIntegrationTest {
                     "contractNumber": "UPDATE-001",
                     "counterparty": "Updated Company",
                     "contractType": "SERVICE",
-                    "contractStatus": "ACTIVE",                
                     "startDate": "2026-09-01",
                     "endDate": "2027-09-01",
                     "governingLaw": "German Law",
@@ -747,7 +769,6 @@ class ContractIntegrationTest {
                     "contractNumber": "UPDATE-404",
                     "counterparty": "Company",
                     "contractType": "SERVICE",
-                    "contractStatus": "ACTIVE",               
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -776,7 +797,6 @@ class ContractIntegrationTest {
                     "contractNumber": "DELETE-001",
                     "counterparty": "Delete Company",
                     "contractType": "NDA",
-                    "contractStatus": "DRAFT",               
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -838,7 +858,6 @@ class ContractIntegrationTest {
                     "contractNumber": "VALID-001",
                     "counterparty": "Microsoft",
                     "contractType": "NDA",
-                    "contractStatus": "DRAFT",           
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -868,7 +887,6 @@ class ContractIntegrationTest {
                     "title": "Validation Test",
                     "contractNumber": "VALID-002",
                     "counterparty": "Microsoft",
-                    "contractStatus": "DRAFT",            
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -900,7 +918,6 @@ class ContractIntegrationTest {
                     "contractNumber": "VALID-003",
                     "counterparty": "Microsoft",
                     "contractType": "NDA",
-                    "contractStatus": "DRAFT",            
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -932,7 +949,6 @@ class ContractIntegrationTest {
                     "contractNumber": "VALID-004",
                     "counterparty": "Microsoft",
                     "contractType": "NDA",
-                    "contractStatus": "DRAFT",           
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -963,7 +979,6 @@ class ContractIntegrationTest {
                     "contractNumber": "VALID-005",
                     "counterparty": "   ",
                     "contractType": "NDA",
-                    "contractStatus": "DRAFT",           
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -995,7 +1010,6 @@ class ContractIntegrationTest {
                     "contractNumber": "",
                     "counterparty": "Microsoft",
                     "contractType": "NDA",
-                    "contractStatus": "DRAFT",       
                     "startDate": "2026-08-20",
                     "endDate": "2027-08-20",
                     "governingLaw": "German Law",
@@ -1044,7 +1058,6 @@ class ContractIntegrationTest {
                     "contractNumber": "RISK-API-001",
                     "counterparty": "Siemens",
                     "contractType": "SERVICE",
-                    "contractStatus": "ACTIVE",
                     "startDate": "2026-08-20",
                     "endDate": "2030-08-20",
                     "governingLaw": "Swiss law",
@@ -1105,7 +1118,6 @@ class ContractIntegrationTest {
                     "contractNumber": "RISK-API-001",
                     "counterparty": "Siemens",
                     "contractType": "SERVICE",
-                    "contractStatus": "ACTIVE",
                     "startDate": "2026-08-20",
                     "endDate": "2030-08-20",
                     "governingLaw": "Swiss law",

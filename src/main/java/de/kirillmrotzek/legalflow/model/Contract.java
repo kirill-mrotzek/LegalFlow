@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.model;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -36,6 +37,10 @@ public class Contract {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ContractStatus contractStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReviewStatus reviewStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

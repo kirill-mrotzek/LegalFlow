@@ -1,6 +1,5 @@
 package de.kirillmrotzek.legalflow.dto;
 
-import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
@@ -24,9 +23,6 @@ public class ContractRequest {
 
     @NotNull
     private ContractType contractType;
-
-    @NotNull
-    private ContractStatus contractStatus;
 
     @NotNull
     private LocalDate startDate;

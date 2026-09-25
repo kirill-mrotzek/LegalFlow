@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
@@ -25,8 +26,13 @@ public class ContractService {
     private final RiskAssessmentService riskAssessmentService;
 
     public Contract save(Contract contract) {
+
+        contract.setContractStatus(ContractStatus.DRAFT);
+        contract.setReviewStatus(ReviewStatus.PENDING);
+
         RiskAssessment assessment =
                 riskAssessmentService.assess(contract);
+
         contract.setRiskLevel(assessment.getRiskLevel());
 
         return contractRepository.save(contract);
