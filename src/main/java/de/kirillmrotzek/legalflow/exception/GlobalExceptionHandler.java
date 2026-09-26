@@ -106,4 +106,16 @@ public class GlobalExceptionHandler {
                         ex.getMessage()
                 ));
     }
+
+    @ExceptionHandler(InvalidReviewStatusTransitionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidReviewStatusTransition(
+            InvalidReviewStatusTransitionException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        ex.getMessage()
+                ));
+    }
 }

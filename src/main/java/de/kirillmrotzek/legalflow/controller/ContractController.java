@@ -1,6 +1,6 @@
 package de.kirillmrotzek.legalflow.controller;
 
-import de.kirillmrotzek.legalflow.service.ContractLifecycleService;
+import de.kirillmrotzek.legalflow.service.*;
 import de.kirillmrotzek.legalflow.decision.DecisionSupport;
 import de.kirillmrotzek.legalflow.dto.*;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
@@ -15,9 +15,6 @@ import de.kirillmrotzek.legalflow.mapper.DecisionSupportMapper;
 import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
-import de.kirillmrotzek.legalflow.service.ContractService;
-import de.kirillmrotzek.legalflow.service.DecisionSupportService;
-import de.kirillmrotzek.legalflow.service.RiskAssessmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -54,6 +51,7 @@ public class ContractController {
     private final DecisionSupportService decisionSupportService;
     private final DecisionSupportMapper decisionSupportMapper;
     private final ContractLifecycleService contractLifecycleService;
+    private final ReviewWorkflowService reviewWorkflowService;
 
     @GetMapping
     @Operation(
@@ -371,6 +369,58 @@ public class ContractController {
 
         Contract updatedContract =
                 contractLifecycleService.changeStatus(
+                        id,
+                        request.getStatus()
+                );
+
+        return ResponseEntity.ok(
+                contractMapper.toResponse(updatedContract)
+        );
+    }
+
+    @PatchMapping("/{id}/review-status")
+    @Operation(
+            summary = "Change contract review status",
+            description =
+                    "Changes the review workflow status of a contract. " +
+                            "The requested transition must be allowed by the review workflow rules.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Contract review status changed successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid review status transition or request",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            oneOf = {
+                                                    ErrorResponse.class,
+                                                    ValidationErrorResponse.class
+                                            }
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Contract not found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(
+                                            implementation = ErrorResponse.class
+                                    )
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<ContractResponse> changeReviewStatus(
+            @Parameter(description = "Unique contract ID")
+            @PathVariable Long id,
+            @Valid @RequestBody ChangeReviewStatusRequest request) {
+
+        Contract updatedContract =
+                reviewWorkflowService.changeStatus(
                         id,
                         request.getStatus()
                 );

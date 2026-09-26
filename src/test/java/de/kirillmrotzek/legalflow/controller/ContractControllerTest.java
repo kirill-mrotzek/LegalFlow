@@ -6,15 +6,15 @@ import de.kirillmrotzek.legalflow.decision.DecisionSupport;
 import de.kirillmrotzek.legalflow.dto.*;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.exception.InvalidContractStatusTransitionException;
+import de.kirillmrotzek.legalflow.exception.InvalidReviewStatusTransitionException;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
 import de.kirillmrotzek.legalflow.mapper.DecisionSupportMapper;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
-import de.kirillmrotzek.legalflow.service.ContractLifecycleService;
-import de.kirillmrotzek.legalflow.service.ContractService;
-import de.kirillmrotzek.legalflow.service.DecisionSupportService;
+import de.kirillmrotzek.legalflow.service.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -48,7 +48,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
 import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
-import de.kirillmrotzek.legalflow.service.RiskAssessmentService;
+
 import static org.hamcrest.Matchers.hasItem;
 
 @WebMvcTest(ContractController.class)
@@ -77,6 +77,9 @@ class ContractControllerTest {
 
     @MockitoBean
     private ContractLifecycleService contractLifecycleService;
+
+    @MockitoBean
+    private ReviewWorkflowService reviewWorkflowService;
 
     @Test
     void getContractById_shouldReturn200() throws Exception {
@@ -1789,6 +1792,46 @@ class ContractControllerTest {
     }
 
     @Test
+    void changeReviewStatus_shouldChangeStatusSuccessfully() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setReviewStatus(ReviewStatus.IN_REVIEW);
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setReviewStatus(ReviewStatus.IN_REVIEW);
+
+        when(reviewWorkflowService.changeStatus(
+                eq(1L),
+                eq(ReviewStatus.IN_REVIEW)
+        )).thenReturn(contract);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        patch("/contracts/1/review-status")
+                                .contentType(APPLICATION_JSON)
+                                .content("""
+                            {
+                                "status": "IN_REVIEW"
+                            }
+                            """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.reviewStatus")
+                        .value("IN_REVIEW"));
+
+        verify(reviewWorkflowService)
+                .changeStatus(1L, ReviewStatus.IN_REVIEW);
+
+        verify(contractMapper)
+                .toResponse(contract);
+    }
+
+    @Test
     void changeContractStatus_shouldReturnBadRequestForInvalidTransition()
             throws Exception {
 
@@ -1825,6 +1868,42 @@ class ContractControllerTest {
     }
 
     @Test
+    void changeReviewStatus_shouldReturnBadRequestForInvalidTransition()
+            throws Exception {
+
+        when(reviewWorkflowService.changeStatus(
+                eq(1L),
+                eq(ReviewStatus.APPROVED)
+        )).thenThrow(
+                new InvalidReviewStatusTransitionException(
+                        ReviewStatus.PENDING,
+                        ReviewStatus.APPROVED
+                )
+        );
+
+        mockMvc.perform(
+                        patch("/contracts/1/review-status")
+                                .contentType(APPLICATION_JSON)
+                                .content("""
+                            {
+                                "status": "APPROVED"
+                            }
+                            """)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value(
+                                        "Invalid review status transition: PENDING -> APPROVED"
+                                )
+                );
+
+        verify(reviewWorkflowService)
+                .changeStatus(1L, ReviewStatus.APPROVED);
+    }
+
+    @Test
     void changeContractStatus_shouldReturnNotFoundWhenContractDoesNotExist()
             throws Exception {
 
@@ -1856,6 +1935,35 @@ class ContractControllerTest {
     }
 
     @Test
+    void changeReviewStatus_shouldReturnNotFoundWhenContractDoesNotExist()
+            throws Exception {
+
+        when(reviewWorkflowService.changeStatus(
+                eq(999L),
+                eq(ReviewStatus.IN_REVIEW)
+        )).thenThrow(new ContractNotFoundException(999L));
+
+        mockMvc.perform(
+                        patch("/contracts/999/review-status")
+                                .contentType(APPLICATION_JSON)
+                                .content("""
+                        {
+                            "status": "IN_REVIEW"
+                        }
+                        """)
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Contract with id 999 not found")
+                );
+
+        verify(reviewWorkflowService)
+                .changeStatus(999L, ReviewStatus.IN_REVIEW);
+    }
+
+    @Test
     void changeContractStatus_shouldReturnBadRequestWhenStatusIsNull()
             throws Exception {
 
@@ -1874,5 +1982,26 @@ class ContractControllerTest {
                         .value("status: must not be null"));
 
         verifyNoInteractions(contractLifecycleService);
+    }
+
+    @Test
+    void changeReviewStatus_shouldReturnBadRequestWhenStatusIsNull()
+            throws Exception {
+
+        mockMvc.perform(
+                        patch("/contracts/1/review-status")
+                                .contentType(APPLICATION_JSON)
+                                .content("""
+                        {
+                            "status": null
+                        }
+                        """)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors[0]")
+                        .value("status: must not be null"));
+
+        verifyNoInteractions(reviewWorkflowService);
     }
 }
