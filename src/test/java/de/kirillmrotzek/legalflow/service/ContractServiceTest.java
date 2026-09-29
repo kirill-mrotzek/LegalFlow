@@ -1,12 +1,12 @@
 package de.kirillmrotzek.legalflow.service;
 
-import de.kirillmrotzek.legalflow.enums.ContractStatus;
-import de.kirillmrotzek.legalflow.enums.ContractType;
-import de.kirillmrotzek.legalflow.enums.ReviewStatus;
+import de.kirillmrotzek.legalflow.decision.LegalReviewDecision;
+import de.kirillmrotzek.legalflow.enums.*;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
+import de.kirillmrotzek.legalflow.risk.RiskFactor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import de.kirillmrotzek.legalflow.enums.RiskLevel;
 
 @ExtendWith(MockitoExtension.class)
 class ContractServiceTest {
@@ -39,6 +38,9 @@ class ContractServiceTest {
 
     @InjectMocks
     private ContractService contractService;
+
+    @Mock
+    private LegalReviewDecisionService legalReviewDecisionService;
 
     @Test
     void save_shouldReturnSavedContract() {
@@ -53,6 +55,12 @@ class ContractServiceTest {
                         List.of()
                 );
 
+        LegalReviewDecision decision =
+                new LegalReviewDecision(
+                        ReviewType.STANDARD,
+                        "Standard legal review required"
+                );
+
 
         Contract savedContract = new Contract();
         savedContract.setId(1L);
@@ -64,6 +72,8 @@ class ContractServiceTest {
         when(contractRepository.save(contract))
                 .thenReturn(savedContract);
 
+        when(legalReviewDecisionService.decide(assessment))
+                .thenReturn(decision);
 
         Contract result = contractService.save(contract);
 
@@ -76,9 +86,18 @@ class ContractServiceTest {
                 ReviewStatus.PENDING,
                 contract.getReviewStatus()
         );
+        assertEquals(
+                ReviewType.STANDARD,
+                contract.getLegalReviewType()
+        );
+        assertEquals(
+                "Standard legal review required",
+                contract.getLegalReviewReason()
+        );
 
         verify(contractRepository).save(contract);
         verify(riskAssessmentService).assess(contract);
+        verify(legalReviewDecisionService).decide(assessment);
     }
 
     @Test
@@ -534,6 +553,12 @@ class ContractServiceTest {
                         List.of()
                 );
 
+        LegalReviewDecision decision =
+                new LegalReviewDecision(
+                        ReviewType.STANDARD,
+                        "Standard legal review required"
+                );
+
         when(riskAssessmentService.assess(existingContract))
                 .thenReturn(assessment);
 
@@ -542,6 +567,9 @@ class ContractServiceTest {
 
         when(contractRepository.save(existingContract))
                 .thenReturn(savedContract);
+
+        when(legalReviewDecisionService.decide(assessment))
+                .thenReturn(decision);
 
         Contract result =
                 contractService.update(1L, newContract);
@@ -605,8 +633,119 @@ class ContractServiceTest {
                 existingContract.getUnlimitedLiability()
         );
 
+        assertEquals(
+                ReviewType.STANDARD,
+                existingContract.getLegalReviewType()
+        );
+
+        assertEquals(
+                "Standard legal review required",
+                existingContract.getLegalReviewReason()
+        );
+
 
         verify(riskAssessmentService).assess(existingContract);
+        verify(contractRepository).save(existingContract);
+        verify(legalReviewDecisionService).decide(assessment);
+    }
+
+    @Test
+    void update_shouldRecalculateLegalReviewDecision() {
+        Contract existingContract = new Contract();
+        existingContract.setId(1L);
+        existingContract.setTitle("Old NDA");
+        existingContract.setContractNumber("NDA-001");
+        existingContract.setCounterparty("Google");
+        existingContract.setContractType(ContractType.NDA);
+        existingContract.setContractStatus(ContractStatus.DRAFT);
+        existingContract.setRiskLevel(RiskLevel.LOW);
+        existingContract.setStartDate(LocalDate.of(2026, 1, 1));
+        existingContract.setEndDate(LocalDate.of(2027, 1, 1));
+        existingContract.setGoverningLaw("German Law");
+        existingContract.setContractValue(new BigDecimal("10000"));
+        existingContract.setUnlimitedLiability(false);
+        existingContract.setAutoRenewal(false);
+
+        Contract newContract = new Contract();
+        newContract.setTitle("Updated Service Agreement");
+        newContract.setContractNumber("SERVICE-002");
+        newContract.setCounterparty("Microsoft");
+        newContract.setContractType(ContractType.SERVICE);
+        newContract.setStartDate(LocalDate.of(2026, 9, 1));
+        newContract.setEndDate(LocalDate.of(2027, 9, 1));
+        newContract.setGoverningLaw("Austrian Law");
+        newContract.setContractValue(new BigDecimal("25000"));
+        newContract.setUnlimitedLiability(true);
+        newContract.setAutoRenewal(true);
+
+        Contract savedContract = new Contract();
+        savedContract.setId(1L);
+        savedContract.setTitle("Updated Service Agreement");
+        savedContract.setContractNumber("SERVICE-002");
+        savedContract.setCounterparty("Microsoft");
+        savedContract.setContractType(ContractType.SERVICE);
+        savedContract.setContractStatus(ContractStatus.DRAFT);
+        savedContract.setRiskLevel(RiskLevel.MEDIUM);
+        savedContract.setStartDate(LocalDate.of(2026, 9, 1));
+        savedContract.setEndDate(LocalDate.of(2027, 9, 1));
+        savedContract.setGoverningLaw("Austrian Law");
+        savedContract.setContractValue(new BigDecimal("25000"));
+        savedContract.setUnlimitedLiability(true);
+        savedContract.setAutoRenewal(true);
+
+        RiskAssessment assessment =
+                new RiskAssessment(
+                        35,
+                        RiskLevel.MEDIUM,
+                        List.of(
+                                new RiskFactor(
+                                        "UNLIMITED_LIABILITY",
+                                        25,
+                                        "Unlimited liability",
+                                        "The contract contains unlimited liability."
+                                )
+                        )
+                );
+
+        LegalReviewDecision decision =
+                new LegalReviewDecision(
+                        ReviewType.ENHANCED,
+                        "Unlimited liability"
+                );
+
+        when(contractRepository.findById(1L))
+                .thenReturn(Optional.of(existingContract));
+
+        when(contractRepository.save(existingContract))
+                .thenReturn(savedContract);
+
+        when(riskAssessmentService.assess(existingContract))
+                .thenReturn(assessment);
+
+        when(legalReviewDecisionService.decide(assessment))
+                .thenReturn(decision);
+
+        Contract result =
+                contractService.update(1L, newContract);
+
+        assertSame(savedContract, result);
+
+        assertEquals(
+                ReviewType.ENHANCED,
+                existingContract.getLegalReviewType()
+        );
+
+        assertEquals(
+                "Unlimited liability",
+                existingContract.getLegalReviewReason()
+        );
+
+        assertTrue(
+                existingContract.getUnlimitedLiability()
+        );
+
+        verify(riskAssessmentService).assess(existingContract);
+        verify(legalReviewDecisionService).decide(assessment);
         verify(contractRepository).save(existingContract);
     }
 

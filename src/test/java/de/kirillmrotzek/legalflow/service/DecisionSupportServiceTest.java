@@ -1,6 +1,8 @@
 package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.decision.*;
+import de.kirillmrotzek.legalflow.enums.ApprovalRole;
+import de.kirillmrotzek.legalflow.enums.DecisionPriority;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
@@ -10,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DecisionSupportServiceTest {
+class DecisionSupportServiceTest {
 
     @Test
     void shouldGenerateDecisionSupportForUnlimitedLiability() {

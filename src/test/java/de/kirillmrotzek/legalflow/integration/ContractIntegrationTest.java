@@ -1,9 +1,6 @@
 package de.kirillmrotzek.legalflow.integration;
 
-import de.kirillmrotzek.legalflow.enums.ContractStatus;
-import de.kirillmrotzek.legalflow.enums.ContractType;
-import de.kirillmrotzek.legalflow.enums.ReviewStatus;
-import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.enums.*;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import org.junit.jupiter.api.Test;
@@ -160,6 +157,8 @@ class ContractIntegrationTest {
         contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.MEDIUM);
+        contract1.setLegalReviewType(ReviewType.STANDARD);
+        contract1.setLegalReviewReason("Standard legal review required");
         contract1.setContractValue(new BigDecimal("25000"));
         contract1.setStartDate(LocalDate.of(2026, 1, 1));
         contract1.setEndDate(LocalDate.of(2027, 1, 1));
@@ -172,6 +171,8 @@ class ContractIntegrationTest {
         contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SERVICE);
         contract2.setRiskLevel(RiskLevel.LOW);
+        contract2.setLegalReviewType(ReviewType.STANDARD);
+        contract2.setLegalReviewReason("Standard legal review required");
         contract2.setContractValue(new BigDecimal("5000"));
         contract2.setStartDate(LocalDate.of(2026, 2, 1));
         contract2.setEndDate(LocalDate.of(2027, 2, 1));
@@ -184,6 +185,8 @@ class ContractIntegrationTest {
         contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.NDA);
         contract3.setRiskLevel(RiskLevel.HIGH);
+        contract3.setLegalReviewType(ReviewType.STANDARD);
+        contract3.setLegalReviewReason("Standard legal review required");
         contract3.setContractValue(new BigDecimal("30000"));
         contract3.setStartDate(LocalDate.of(2026, 3, 1));
         contract3.setEndDate(LocalDate.of(2027, 3, 1));
@@ -223,6 +226,8 @@ class ContractIntegrationTest {
         contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.LOW);
+        contract1.setLegalReviewType(ReviewType.STANDARD);
+        contract1.setLegalReviewReason("Standard legal review required");
         contract1.setContractValue(new BigDecimal("10000"));
         contract1.setStartDate(LocalDate.of(2026, 1, 15));
         contract1.setEndDate(LocalDate.of(2027, 1, 15));
@@ -235,6 +240,8 @@ class ContractIntegrationTest {
         contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SERVICE);
         contract2.setRiskLevel(RiskLevel.MEDIUM);
+        contract2.setLegalReviewType(ReviewType.STANDARD);
+        contract2.setLegalReviewReason("Standard legal review required");
         contract2.setContractValue(new BigDecimal("20000"));
         contract2.setStartDate(LocalDate.of(2026, 6, 15));
         contract2.setEndDate(LocalDate.of(2027, 6, 15));
@@ -247,6 +254,8 @@ class ContractIntegrationTest {
         contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.SERVICE);
         contract3.setRiskLevel(RiskLevel.HIGH);
+        contract3.setLegalReviewType(ReviewType.STANDARD);
+        contract3.setLegalReviewReason("Standard legal review required");
         contract3.setContractValue(new BigDecimal("30000"));
         contract3.setStartDate(LocalDate.of(2026, 11, 15));
         contract3.setEndDate(LocalDate.of(2027, 11, 15));
@@ -285,6 +294,8 @@ class ContractIntegrationTest {
         contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.LOW);
+        contract1.setLegalReviewType(ReviewType.STANDARD);
+        contract1.setLegalReviewReason("Standard legal review required");
         contract1.setContractValue(new BigDecimal("10000"));
         contract1.setStartDate(LocalDate.of(2026, 1, 1));
         contract1.setEndDate(LocalDate.of(2027, 1, 15));
@@ -297,6 +308,8 @@ class ContractIntegrationTest {
         contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SERVICE);
         contract2.setRiskLevel(RiskLevel.MEDIUM);
+        contract2.setLegalReviewType(ReviewType.STANDARD);
+        contract2.setLegalReviewReason("Standard legal review required");
         contract2.setContractValue(new BigDecimal("20000"));
         contract2.setStartDate(LocalDate.of(2026, 2, 1));
         contract2.setEndDate(LocalDate.of(2027, 6, 15));
@@ -309,6 +322,8 @@ class ContractIntegrationTest {
         contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.SERVICE);
         contract3.setRiskLevel(RiskLevel.HIGH);
+        contract3.setLegalReviewType(ReviewType.STANDARD);
+        contract3.setLegalReviewReason("Standard legal review required");
         contract3.setContractValue(new BigDecimal("30000"));
         contract3.setStartDate(LocalDate.of(2026, 3, 1));
         contract3.setEndDate(LocalDate.of(2027, 11, 15));
@@ -400,6 +415,8 @@ class ContractIntegrationTest {
         lowRisk.setReviewStatus(ReviewStatus.PENDING);
         lowRisk.setContractType(ContractType.SERVICE);
         lowRisk.setRiskLevel(RiskLevel.LOW);
+        lowRisk.setLegalReviewType(ReviewType.STANDARD);
+        lowRisk.setLegalReviewReason("Standard legal review required");
         lowRisk.setContractValue(new BigDecimal("10000"));
         lowRisk.setStartDate(LocalDate.of(2026, 1, 1));
         lowRisk.setEndDate(LocalDate.of(2027, 1, 1));
@@ -412,6 +429,8 @@ class ContractIntegrationTest {
         mediumRisk.setReviewStatus(ReviewStatus.PENDING);
         mediumRisk.setContractType(ContractType.SERVICE);
         mediumRisk.setRiskLevel(RiskLevel.MEDIUM);
+        mediumRisk.setLegalReviewType(ReviewType.STANDARD);
+        mediumRisk.setLegalReviewReason("Standard legal review required");
         mediumRisk.setContractValue(new BigDecimal("20000"));
         mediumRisk.setStartDate(LocalDate.of(2026, 2, 1));
         mediumRisk.setEndDate(LocalDate.of(2027, 2, 1));
@@ -424,6 +443,8 @@ class ContractIntegrationTest {
         highRisk.setReviewStatus(ReviewStatus.PENDING);
         highRisk.setContractType(ContractType.SERVICE);
         highRisk.setRiskLevel(RiskLevel.HIGH);
+        highRisk.setLegalReviewType(ReviewType.STANDARD);
+        highRisk.setLegalReviewReason("Standard legal review required");
         highRisk.setContractValue(new BigDecimal("30000"));
         highRisk.setStartDate(LocalDate.of(2026, 3, 1));
         highRisk.setEndDate(LocalDate.of(2027, 3, 1));
@@ -463,6 +484,8 @@ class ContractIntegrationTest {
         contract1.setReviewStatus(ReviewStatus.PENDING);
         contract1.setContractType(ContractType.SERVICE);
         contract1.setRiskLevel(RiskLevel.MEDIUM);
+        contract1.setLegalReviewType(ReviewType.STANDARD);
+        contract1.setLegalReviewReason("Standard legal review required");
         contract1.setContractValue(new BigDecimal("25000"));
         contract1.setStartDate(LocalDate.of(2026, 1, 1));
         contract1.setEndDate(LocalDate.of(2027, 1, 1));
@@ -475,6 +498,8 @@ class ContractIntegrationTest {
         contract2.setReviewStatus(ReviewStatus.PENDING);
         contract2.setContractType(ContractType.SUPPLIER);
         contract2.setRiskLevel(RiskLevel.LOW);
+        contract2.setLegalReviewType(ReviewType.STANDARD);
+        contract2.setLegalReviewReason("Standard legal review required");
         contract2.setContractValue(new BigDecimal("15000"));
         contract2.setStartDate(LocalDate.of(2026, 2, 1));
         contract2.setEndDate(LocalDate.of(2027, 2, 1));
@@ -487,6 +512,8 @@ class ContractIntegrationTest {
         contract3.setReviewStatus(ReviewStatus.PENDING);
         contract3.setContractType(ContractType.NDA);
         contract3.setRiskLevel(RiskLevel.HIGH);
+        contract3.setLegalReviewType(ReviewType.STANDARD);
+        contract3.setLegalReviewReason("Standard legal review required");
         contract3.setContractValue(new BigDecimal("5000"));
         contract3.setStartDate(LocalDate.of(2026, 3, 1));
         contract3.setEndDate(LocalDate.of(2027, 3, 1));
@@ -524,6 +551,8 @@ class ContractIntegrationTest {
         matchingContract.setReviewStatus(ReviewStatus.PENDING);
         matchingContract.setContractType(ContractType.SERVICE);
         matchingContract.setRiskLevel(RiskLevel.HIGH);
+        matchingContract.setLegalReviewType(ReviewType.STANDARD);
+        matchingContract.setLegalReviewReason("Standard legal review required");
         matchingContract.setContractValue(new BigDecimal("50000"));
         matchingContract.setStartDate(LocalDate.of(2026, 6, 1));
         matchingContract.setEndDate(LocalDate.of(2027, 6, 30));
@@ -536,6 +565,8 @@ class ContractIntegrationTest {
         wrongStatus.setReviewStatus(ReviewStatus.PENDING);
         wrongStatus.setContractType(ContractType.SERVICE);
         wrongStatus.setRiskLevel(RiskLevel.HIGH);
+        wrongStatus.setLegalReviewType(ReviewType.STANDARD);
+        wrongStatus.setLegalReviewReason("Standard legal review required");
         wrongStatus.setContractValue(new BigDecimal("50000"));
         wrongStatus.setStartDate(LocalDate.of(2026, 6, 1));
         wrongStatus.setEndDate(LocalDate.of(2027, 6, 30));
@@ -548,6 +579,8 @@ class ContractIntegrationTest {
         wrongRisk.setReviewStatus(ReviewStatus.PENDING);
         wrongRisk.setContractType(ContractType.SERVICE);
         wrongRisk.setRiskLevel(RiskLevel.MEDIUM);
+        wrongRisk.setLegalReviewType(ReviewType.STANDARD);
+        wrongRisk.setLegalReviewReason("Standard legal review required");
         wrongRisk.setContractValue(new BigDecimal("50000"));
         wrongRisk.setStartDate(LocalDate.of(2026, 6, 1));
         wrongRisk.setEndDate(LocalDate.of(2027, 6, 30));
@@ -560,6 +593,8 @@ class ContractIntegrationTest {
         wrongValue.setReviewStatus(ReviewStatus.PENDING);
         wrongValue.setContractType(ContractType.SERVICE);
         wrongValue.setRiskLevel(RiskLevel.HIGH);
+        wrongValue.setLegalReviewType(ReviewType.STANDARD);
+        wrongValue.setLegalReviewReason("Standard legal review required");
         wrongValue.setContractValue(new BigDecimal("5000"));
         wrongValue.setStartDate(LocalDate.of(2026, 6, 1));
         wrongValue.setEndDate(LocalDate.of(2027, 6, 30));
@@ -572,6 +607,8 @@ class ContractIntegrationTest {
         wrongStartDate.setReviewStatus(ReviewStatus.PENDING);
         wrongStartDate.setContractType(ContractType.SERVICE);
         wrongStartDate.setRiskLevel(RiskLevel.HIGH);
+        wrongStartDate.setLegalReviewType(ReviewType.STANDARD);
+        wrongStartDate.setLegalReviewReason("Standard legal review required");
         wrongStartDate.setContractValue(new BigDecimal("50000"));
         wrongStartDate.setStartDate(LocalDate.of(2025, 6, 1));
         wrongStartDate.setEndDate(LocalDate.of(2027, 6, 30));
@@ -584,6 +621,8 @@ class ContractIntegrationTest {
         wrongEndDate.setReviewStatus(ReviewStatus.PENDING);
         wrongEndDate.setContractType(ContractType.SERVICE);
         wrongEndDate.setRiskLevel(RiskLevel.HIGH);
+        wrongEndDate.setLegalReviewType(ReviewType.STANDARD);
+        wrongEndDate.setLegalReviewReason("Standard legal review required");
         wrongEndDate.setContractValue(new BigDecimal("50000"));
         wrongEndDate.setStartDate(LocalDate.of(2026, 6, 1));
         wrongEndDate.setEndDate(LocalDate.of(2028, 6, 30));

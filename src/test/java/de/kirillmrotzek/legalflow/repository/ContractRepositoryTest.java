@@ -1,9 +1,6 @@
 package de.kirillmrotzek.legalflow.repository;
 
-import de.kirillmrotzek.legalflow.enums.ContractStatus;
-import de.kirillmrotzek.legalflow.enums.ContractType;
-import de.kirillmrotzek.legalflow.enums.ReviewStatus;
-import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.enums.*;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +31,8 @@ class ContractRepositoryTest {
         contract.setContractType(ContractType.NDA);
         contract.setContractStatus(ContractStatus.DRAFT);
         contract.setReviewStatus(ReviewStatus.PENDING);
+        contract.setLegalReviewType(ReviewType.STANDARD);
+        contract.setLegalReviewReason("Standard legal review required");
         contract.setRiskLevel(RiskLevel.LOW);
         contract.setStartDate(LocalDate.of(2026, 1, 1));
         contract.setEndDate(LocalDate.of(2026, 12, 31));
@@ -63,6 +62,10 @@ class ContractRepositoryTest {
                 result.get().getEndDate()
         );
         assertEquals("Google", result.get().getCounterparty());
+        assertEquals(
+                ReviewType.STANDARD,
+                result.get().getLegalReviewType()
+        );
     }
 
     @Test
@@ -74,6 +77,8 @@ class ContractRepositoryTest {
         contract1.setContractType(ContractType.NDA);
         contract1.setContractStatus(ContractStatus.DRAFT);
         contract1.setReviewStatus(ReviewStatus.PENDING);
+        contract1.setLegalReviewType(ReviewType.STANDARD);
+        contract1.setLegalReviewReason("Standard legal review required");
         contract1.setRiskLevel(RiskLevel.LOW);
         contract1.setStartDate(LocalDate.of(2026, 1, 1));
         contract1.setEndDate(LocalDate.of(2026, 12, 31));
@@ -85,6 +90,8 @@ class ContractRepositoryTest {
         contract2.setContractType(ContractType.SERVICE);
         contract2.setContractStatus(ContractStatus.ACTIVE);
         contract2.setReviewStatus(ReviewStatus.PENDING);
+        contract2.setLegalReviewType(ReviewType.STANDARD);
+        contract2.setLegalReviewReason("Standard legal review required");
         contract2.setRiskLevel(RiskLevel.MEDIUM);
         contract2.setStartDate(LocalDate.of(2026, 2, 1));
         contract2.setEndDate(LocalDate.of(2027, 1, 31));
@@ -110,6 +117,8 @@ class ContractRepositoryTest {
         contract1.setContractType(ContractType.NDA);
         contract1.setContractStatus(ContractStatus.DRAFT);
         contract1.setReviewStatus(ReviewStatus.PENDING);
+        contract1.setLegalReviewType(ReviewType.STANDARD);
+        contract1.setLegalReviewReason("Standard legal review required");
         contract1.setRiskLevel(RiskLevel.LOW);
         contract1.setStartDate(LocalDate.of(2026, 1, 1));
         contract1.setEndDate(LocalDate.of(2026, 12, 31));
@@ -122,6 +131,8 @@ class ContractRepositoryTest {
         contract2.setContractType(ContractType.NDA);
         contract2.setContractStatus(ContractStatus.DRAFT);
         contract2.setReviewStatus(ReviewStatus.PENDING);
+        contract2.setLegalReviewType(ReviewType.STANDARD);
+        contract2.setLegalReviewReason("Standard legal review required");
         contract2.setRiskLevel(RiskLevel.LOW);
         contract2.setStartDate(LocalDate.of(2026, 2, 1));
         contract2.setEndDate(LocalDate.of(2026, 12, 31));

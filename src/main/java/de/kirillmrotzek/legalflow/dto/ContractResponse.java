@@ -1,9 +1,6 @@
 package de.kirillmrotzek.legalflow.dto;
 
-import de.kirillmrotzek.legalflow.enums.ContractStatus;
-import de.kirillmrotzek.legalflow.enums.ContractType;
-import de.kirillmrotzek.legalflow.enums.ReviewStatus;
-import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.enums.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -25,4 +22,6 @@ public class ContractResponse {
     private BigDecimal contractValue;
     private Boolean autoRenewal;
     private Boolean unlimitedLiability;
+    private ReviewType legalReviewType;
+    private String legalReviewReason;
 }

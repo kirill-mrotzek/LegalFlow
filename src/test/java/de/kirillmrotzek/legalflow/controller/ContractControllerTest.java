@@ -1,7 +1,7 @@
 package de.kirillmrotzek.legalflow.controller;
 
-import de.kirillmrotzek.legalflow.decision.ApprovalRole;
-import de.kirillmrotzek.legalflow.decision.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.ApprovalRole;
+import de.kirillmrotzek.legalflow.enums.DecisionPriority;
 import de.kirillmrotzek.legalflow.decision.DecisionSupport;
 import de.kirillmrotzek.legalflow.dto.*;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;

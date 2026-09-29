@@ -1,5 +1,7 @@
 package de.kirillmrotzek.legalflow.decision;
 
+import de.kirillmrotzek.legalflow.enums.ApprovalRole;
+import de.kirillmrotzek.legalflow.enums.DecisionPriority;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

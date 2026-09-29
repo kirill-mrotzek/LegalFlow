@@ -1,5 +1,7 @@
 package de.kirillmrotzek.legalflow.decision;
 
+import de.kirillmrotzek.legalflow.enums.ApprovalRole;
+import de.kirillmrotzek.legalflow.enums.DecisionPriority;
 import lombok.Getter;
 
 import java.util.List;

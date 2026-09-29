@@ -1,5 +1,7 @@
 package de.kirillmrotzek.legalflow.decision;
 
+import de.kirillmrotzek.legalflow.enums.ApprovalRole;
+import de.kirillmrotzek.legalflow.enums.DecisionPriority;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;

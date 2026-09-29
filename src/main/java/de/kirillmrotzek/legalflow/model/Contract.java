@@ -1,9 +1,6 @@
 package de.kirillmrotzek.legalflow.model;
 
-import de.kirillmrotzek.legalflow.enums.ContractStatus;
-import de.kirillmrotzek.legalflow.enums.ContractType;
-import de.kirillmrotzek.legalflow.enums.ReviewStatus;
-import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.enums.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,4 +59,10 @@ public class Contract {
     private String governingLaw;
 
     private BigDecimal contractValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReviewType legalReviewType;
+
+    private String legalReviewReason;
 }

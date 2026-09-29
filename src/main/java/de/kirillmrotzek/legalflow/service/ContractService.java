@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.service;
 
+import de.kirillmrotzek.legalflow.decision.LegalReviewDecision;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.ReviewStatus;
@@ -24,6 +25,7 @@ public class ContractService {
 
     private final ContractRepository contractRepository;
     private final RiskAssessmentService riskAssessmentService;
+    private final LegalReviewDecisionService legalReviewDecisionService;
 
     public Contract save(Contract contract) {
 
@@ -34,6 +36,17 @@ public class ContractService {
                 riskAssessmentService.assess(contract);
 
         contract.setRiskLevel(assessment.getRiskLevel());
+
+        LegalReviewDecision decision =
+                legalReviewDecisionService.decide(assessment);
+
+        contract.setLegalReviewType(
+                decision.getReviewType()
+        );
+
+        contract.setLegalReviewReason(
+                decision.getReason()
+        );
 
         return contractRepository.save(contract);
     }
@@ -145,6 +158,17 @@ public class ContractService {
                 riskAssessmentService.assess(existingContract);
 
         existingContract.setRiskLevel(assessment.getRiskLevel());
+
+        LegalReviewDecision decision =
+                legalReviewDecisionService.decide(assessment);
+
+        existingContract.setLegalReviewType(
+                decision.getReviewType()
+        );
+
+        existingContract.setLegalReviewReason(
+                decision.getReason()
+        );
 
         return contractRepository.save(existingContract);
     }

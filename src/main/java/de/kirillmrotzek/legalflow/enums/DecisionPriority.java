@@ -1,4 +1,4 @@
-package de.kirillmrotzek.legalflow.decision;
+package de.kirillmrotzek.legalflow.enums;
 
 public enum DecisionPriority {
 

@@ -1,6 +1,8 @@
 package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.decision.*;
+import de.kirillmrotzek.legalflow.enums.ApprovalRole;
+import de.kirillmrotzek.legalflow.enums.DecisionPriority;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import org.springframework.stereotype.Service;
 
