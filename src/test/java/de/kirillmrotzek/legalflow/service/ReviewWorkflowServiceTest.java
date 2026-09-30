@@ -6,16 +6,15 @@ import de.kirillmrotzek.legalflow.exception.InvalidReviewStatusTransitionExcepti
 import de.kirillmrotzek.legalflow.lifecycle.ReviewStatusTransitionValidator;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -30,15 +29,8 @@ class ReviewWorkflowServiceTest {
     @Mock
     private ReviewStatusTransitionValidator transitionValidator;
 
+    @InjectMocks
     private ReviewWorkflowService reviewWorkflowService;
-
-    @BeforeEach
-    void setUp() {
-        reviewWorkflowService = new ReviewWorkflowService(
-                contractRepository,
-                transitionValidator
-        );
-    }
 
     @Test
     void shouldChangeStatusFromPendingToInReview() {
@@ -182,6 +174,117 @@ class ReviewWorkflowServiceTest {
         verify(transitionValidator, never()).isAllowed(
                 any(ReviewStatus.class),
                 any(ReviewStatus.class)
+        );
+    }
+
+    @Test
+    void startReview_shouldMovePendingToInReview() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setReviewStatus(ReviewStatus.PENDING);
+
+        when(contractRepository.findById(1L))
+                .thenReturn(Optional.of(contract));
+
+        when(transitionValidator.isAllowed(
+                ReviewStatus.PENDING,
+                ReviewStatus.IN_REVIEW
+        )).thenReturn(true);
+
+        when(contractRepository.save(contract))
+                .thenReturn(contract);
+
+        Contract result =
+                reviewWorkflowService.startReview(1L);
+
+        assertSame(contract, result);
+
+        assertEquals(
+                ReviewStatus.IN_REVIEW,
+                contract.getReviewStatus()
+        );
+
+        verify(contractRepository).findById(1L);
+        verify(contractRepository).save(contract);
+
+        verify(transitionValidator).isAllowed(
+                ReviewStatus.PENDING,
+                ReviewStatus.IN_REVIEW
+        );
+    }
+
+    @Test
+    void approveReview_shouldMoveInReviewToApproved() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setReviewStatus(ReviewStatus.IN_REVIEW);
+
+        when(contractRepository.findById(1L))
+                .thenReturn(Optional.of(contract));
+
+        when(transitionValidator.isAllowed(
+                ReviewStatus.IN_REVIEW,
+                ReviewStatus.APPROVED
+        )).thenReturn(true);
+
+        when(contractRepository.save(contract))
+                .thenReturn(contract);
+
+        Contract result =
+                reviewWorkflowService.approveReview(1L);
+
+        assertSame(contract, result);
+
+        assertEquals(
+                ReviewStatus.APPROVED,
+                contract.getReviewStatus()
+        );
+
+        verify(contractRepository).findById(1L);
+        verify(contractRepository).save(contract);
+
+        verify(transitionValidator).isAllowed(
+                ReviewStatus.IN_REVIEW,
+                ReviewStatus.APPROVED
+        );
+    }
+
+    @Test
+    void rejectReview_shouldMoveInReviewToRejected() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setReviewStatus(ReviewStatus.IN_REVIEW);
+
+        when(contractRepository.findById(1L))
+                .thenReturn(Optional.of(contract));
+
+        when(transitionValidator.isAllowed(
+                ReviewStatus.IN_REVIEW,
+                ReviewStatus.REJECTED
+        )).thenReturn(true);
+
+        when(contractRepository.save(contract))
+                .thenReturn(contract);
+
+        Contract result =
+                reviewWorkflowService.rejectReview(1L);
+
+        assertSame(contract, result);
+
+        assertEquals(
+                ReviewStatus.REJECTED,
+                contract.getReviewStatus()
+        );
+
+        verify(contractRepository).findById(1L);
+        verify(contractRepository).save(contract);
+
+        verify(transitionValidator).isAllowed(
+                ReviewStatus.IN_REVIEW,
+                ReviewStatus.REJECTED
         );
     }
 }

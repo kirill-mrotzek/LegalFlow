@@ -44,4 +44,28 @@ public class ReviewWorkflowService {
 
         return contractRepository.save(contract);
     }
+
+    public Contract startReview(Long contractId) {
+
+        return changeStatus(
+                contractId,
+                ReviewStatus.IN_REVIEW
+        );
+    }
+
+    public Contract approveReview(Long contractId) {
+
+        return changeStatus(
+                contractId,
+                ReviewStatus.APPROVED
+        );
+    }
+
+    public Contract rejectReview(Long contractId) {
+
+        return changeStatus(
+                contractId,
+                ReviewStatus.REJECTED
+        );
+    }
 }

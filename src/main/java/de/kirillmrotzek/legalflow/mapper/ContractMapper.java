@@ -16,5 +16,7 @@ public interface ContractMapper {
     @Mapping(target = "riskLevel", ignore = true)
     @Mapping(target = "contractStatus", ignore = true)
     @Mapping(target = "reviewStatus", ignore = true)
+    @Mapping(target = "legalReviewType", ignore = true)
+    @Mapping(target = "legalReviewReason", ignore = true)
     Contract toEntity(ContractRequest request);
 }

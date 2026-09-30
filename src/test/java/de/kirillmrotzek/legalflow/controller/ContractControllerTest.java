@@ -2004,4 +2004,170 @@ class ContractControllerTest {
 
         verifyNoInteractions(reviewWorkflowService);
     }
+
+    @Test
+    void startReview_shouldStartReviewSuccessfully() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setReviewStatus(ReviewStatus.IN_REVIEW);
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setReviewStatus(ReviewStatus.IN_REVIEW);
+
+        when(reviewWorkflowService.startReview(1L))
+                .thenReturn(contract);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        post("/contracts/1/review/start")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.reviewStatus")
+                        .value("IN_REVIEW"));
+
+        verify(reviewWorkflowService)
+                .startReview(1L);
+
+        verify(contractMapper)
+                .toResponse(contract);
+    }
+
+    @Test
+    void startReview_shouldReturnNotFoundWhenContractDoesNotExist()
+            throws Exception {
+
+        when(reviewWorkflowService.startReview(999L))
+                .thenThrow(new ContractNotFoundException(999L));
+
+        mockMvc.perform(
+                        post("/contracts/999/review/start")
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Contract with id 999 not found")
+                );
+
+        verify(reviewWorkflowService)
+                .startReview(999L);
+    }
+
+    @Test
+    void approveReview_shouldApproveReviewSuccessfully() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setReviewStatus(ReviewStatus.APPROVED);
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setReviewStatus(ReviewStatus.APPROVED);
+
+        when(reviewWorkflowService.approveReview(1L))
+                .thenReturn(contract);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        post("/contracts/1/review/approve")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.reviewStatus")
+                        .value("APPROVED"));
+
+        verify(reviewWorkflowService)
+                .approveReview(1L);
+
+        verify(contractMapper)
+                .toResponse(contract);
+    }
+
+    @Test
+    void approveReview_shouldReturnBadRequestForInvalidTransition()
+            throws Exception {
+
+        when(reviewWorkflowService.approveReview(1L))
+                .thenThrow(
+                        new InvalidReviewStatusTransitionException(
+                                ReviewStatus.PENDING,
+                                ReviewStatus.APPROVED
+                        )
+                );
+
+        mockMvc.perform(
+                        post("/contracts/1/review/approve")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value(
+                                        "Invalid review status transition: PENDING -> APPROVED"
+                                )
+                );
+
+        verify(reviewWorkflowService)
+                .approveReview(1L);
+    }
+
+    @Test
+    void rejectReview_shouldRejectReviewSuccessfully() throws Exception {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+        contract.setReviewStatus(ReviewStatus.REJECTED);
+
+        ContractResponse response = new ContractResponse();
+        response.setId(1L);
+        response.setReviewStatus(ReviewStatus.REJECTED);
+
+        when(reviewWorkflowService.rejectReview(1L))
+                .thenReturn(contract);
+
+        when(contractMapper.toResponse(contract))
+                .thenReturn(response);
+
+        mockMvc.perform(
+                        post("/contracts/1/review/reject")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.reviewStatus")
+                        .value("REJECTED"));
+
+        verify(reviewWorkflowService)
+                .rejectReview(1L);
+
+        verify(contractMapper)
+                .toResponse(contract);
+    }
+
+    @Test
+    void rejectReview_shouldReturnNotFoundWhenContractDoesNotExist()
+            throws Exception {
+
+        when(reviewWorkflowService.rejectReview(999L))
+                .thenThrow(new ContractNotFoundException(999L));
+
+        mockMvc.perform(
+                        post("/contracts/999/review/reject")
+                )
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value("Contract with id 999 not found")
+                );
+
+        verify(reviewWorkflowService)
+                .rejectReview(999L);
+    }
 }
