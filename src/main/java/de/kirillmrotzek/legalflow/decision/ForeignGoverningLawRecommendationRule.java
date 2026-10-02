@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.decision;
 
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,9 @@ public class ForeignGoverningLawRecommendationRule implements RecommendationRule
 
         Optional<RiskFactor> factor = assessment.getFactors()
                 .stream()
-                .filter(f -> "FOREIGN_GOVERNING_LAW_NON_EU".equals(f.getCode()))
+                .filter(f ->
+                        f.getRiskFactorCode() == RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU
+                )
                 .findFirst();
 
         return factor.map(f -> new RecommendationResult(

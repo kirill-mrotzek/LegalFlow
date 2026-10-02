@@ -3,6 +3,7 @@ package de.kirillmrotzek.legalflow.service;
 import de.kirillmrotzek.legalflow.decision.*;
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
@@ -18,7 +19,7 @@ class DecisionSupportServiceTest {
     void shouldGenerateDecisionSupportForUnlimitedLiability() {
 
         RiskFactor factor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
+                RiskFactorCode.UNLIMITED_LIABILITY,
                 25,
                 "Contract contains unlimited liability",
                 "Unlimited liability increases potential financial exposure"
@@ -63,7 +64,6 @@ class DecisionSupportServiceTest {
                 "Assign contract to Legal for review",
                 decisionSupport.getNextAction()
         );
-
     }
 
     @Test
@@ -108,14 +108,14 @@ class DecisionSupportServiceTest {
     void shouldAggregateRecommendationsFromMultipleRules() {
 
         RiskFactor highValueFactor = new RiskFactor(
-                "HIGH_CONTRACT_VALUE",
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
                 30,
                 "Contract value exceeds € 100.000",
                 "High contract value increases potential financial exposure"
         );
 
         RiskFactor unlimitedLiabilityFactor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
+                RiskFactorCode.UNLIMITED_LIABILITY,
                 25,
                 "Contract contains unlimited liability",
                 "Unlimited liability increases potential financial exposure"
@@ -160,35 +160,35 @@ class DecisionSupportServiceTest {
     void shouldAggregateRecommendationsFromAllRiskFactors() {
 
         RiskFactor highValueFactor = new RiskFactor(
-                "HIGH_CONTRACT_VALUE",
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
                 30,
                 "Contract value exceeds € 100.000",
                 "High contract value increases potential financial exposure"
         );
 
         RiskFactor unlimitedLiabilityFactor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
+                RiskFactorCode.UNLIMITED_LIABILITY,
                 25,
                 "Contract contains unlimited liability",
                 "Unlimited liability increases potential financial exposure"
         );
 
         RiskFactor longTermFactor = new RiskFactor(
-                "LONG_TERM_CONTRACT",
+                RiskFactorCode.LONG_TERM_CONTRACT,
                 15,
                 "Long term Contract",
                 "Long contract terms increase the duration of legal and financial exposure"
         );
 
         RiskFactor foreignGoverningFactor = new RiskFactor(
-                "FOREIGN_GOVERNING_LAW_NON_EU",
+                RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU,
                 20,
                 "Contract is governed by non-EU law",
                 "Non-EU governing law increases legal complexity and potential enforcement risk"
         );
 
         RiskFactor autoRenewalFactor = new RiskFactor(
-                "AUTO_RENEWAL",
+                RiskFactorCode.AUTO_RENEWAL,
                 10,
                 "Contract contains auto renewal",
                 "Automatic renewal can extend contractual obligations if termination deadlines are missed"

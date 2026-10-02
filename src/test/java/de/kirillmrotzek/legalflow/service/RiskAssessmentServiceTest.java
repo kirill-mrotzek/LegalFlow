@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.config.RiskProperties;
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.reference.EUCountryRegistry;
@@ -24,7 +25,7 @@ class RiskAssessmentServiceTest {
         RiskRule rule = mock(RiskRule.class);
 
         RiskFactor factor = new RiskFactor(
-                "TEST_RISK",
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
                 30,
                 "Test risk factor",
                 "Test risk explanation"
@@ -52,7 +53,10 @@ class RiskAssessmentServiceTest {
         assertEquals(30, result.getScore());
         assertEquals(RiskLevel.MEDIUM, result.getRiskLevel());
         assertEquals(1, result.getFactors().size());
-        assertEquals("TEST_RISK", result.getFactors().get(0).getCode());
+        assertEquals(
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
+                result.getFactors().get(0).getRiskFactorCode()
+        );
 
         verify(riskLevelCalculator).calculate(30);
     }
@@ -96,14 +100,14 @@ class RiskAssessmentServiceTest {
         RiskRule secondRule = mock(RiskRule.class);
 
         RiskFactor firstFactor = new RiskFactor(
-                "FIRST_RISK",
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
                 30,
                 "First risk factor",
                 "First risk explanation"
         );
 
         RiskFactor secondFactor = new RiskFactor(
-                "SECOND_RISK",
+                RiskFactorCode.AUTO_RENEWAL,
                 20,
                 "Second risk factor",
                 "Second risk explanation"
@@ -134,8 +138,14 @@ class RiskAssessmentServiceTest {
         assertEquals(50, result.getScore());
         assertEquals(RiskLevel.MEDIUM, result.getRiskLevel());
         assertEquals(2, result.getFactors().size());
-        assertEquals("FIRST_RISK", result.getFactors().get(0).getCode());
-        assertEquals("SECOND_RISK", result.getFactors().get(1).getCode());
+        assertEquals(
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
+                result.getFactors().get(0).getRiskFactorCode()
+        );
+        assertEquals(
+                RiskFactorCode.AUTO_RENEWAL,
+                result.getFactors().get(1).getRiskFactorCode()
+        );
 
         verify(riskLevelCalculator).calculate(50);
     }
@@ -231,31 +241,31 @@ class RiskAssessmentServiceTest {
         assertTrue(
                 result.getFactors().stream()
                         .anyMatch(factor ->
-                                factor.getCode().equals("HIGH_CONTRACT_VALUE"))
+                                factor.getRiskFactorCode() == RiskFactorCode.HIGH_CONTRACT_VALUE)
         );
 
         assertTrue(
                 result.getFactors().stream()
                         .anyMatch(factor ->
-                                factor.getCode().equals("AUTO_RENEWAL"))
+                                factor.getRiskFactorCode() == RiskFactorCode.AUTO_RENEWAL)
         );
 
         assertTrue(
                 result.getFactors().stream()
                         .anyMatch(factor ->
-                                factor.getCode().equals("LONG_TERM_CONTRACT"))
+                                factor.getRiskFactorCode() == RiskFactorCode.LONG_TERM_CONTRACT)
         );
 
         assertTrue(
                 result.getFactors().stream()
                         .anyMatch(factor ->
-                                factor.getCode().equals("FOREIGN_GOVERNING_LAW_NON_EU"))
+                                factor.getRiskFactorCode() == RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU)
         );
 
         assertTrue(
                 result.getFactors().stream()
                         .anyMatch(factor ->
-                                factor.getCode().equals("UNLIMITED_LIABILITY"))
+                                factor.getRiskFactorCode() == RiskFactorCode.UNLIMITED_LIABILITY)
         );
     }
 }

@@ -1,55 +1,44 @@
 package de.kirillmrotzek.legalflow.controller;
 
-import de.kirillmrotzek.legalflow.enums.ApprovalRole;
-import de.kirillmrotzek.legalflow.enums.DecisionPriority;
-import de.kirillmrotzek.legalflow.decision.DecisionSupport;
-import de.kirillmrotzek.legalflow.dto.*;
+import de.kirillmrotzek.legalflow.dto.ContractRequest;
+import de.kirillmrotzek.legalflow.dto.ContractResponse;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
-import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
-import de.kirillmrotzek.legalflow.exception.InvalidContractStatusTransitionException;
-import de.kirillmrotzek.legalflow.exception.InvalidReviewStatusTransitionException;
-import de.kirillmrotzek.legalflow.mapper.ContractMapper;
-import de.kirillmrotzek.legalflow.mapper.DecisionSupportMapper;
-import de.kirillmrotzek.legalflow.risk.RiskAssessment;
-import de.kirillmrotzek.legalflow.risk.RiskFactor;
-import de.kirillmrotzek.legalflow.service.*;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-import de.kirillmrotzek.legalflow.model.Contract;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import de.kirillmrotzek.legalflow.mapper.ContractMapper;
+import de.kirillmrotzek.legalflow.model.Contract;
+import de.kirillmrotzek.legalflow.service.ContractService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
-import org.springframework.data.domain.PageRequest;
-
-import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
-
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @WebMvcTest(ContractController.class)
 class ContractControllerTest {
@@ -62,24 +51,6 @@ class ContractControllerTest {
 
     @MockitoBean
     private ContractMapper contractMapper;
-
-    @MockitoBean
-    private RiskAssessmentService riskAssessmentService;
-
-    @MockitoBean
-    private RiskAssessmentMapper riskAssessmentMapper;
-
-    @MockitoBean
-    private DecisionSupportService decisionSupportService;
-
-    @MockitoBean
-    private DecisionSupportMapper decisionSupportMapper;
-
-    @MockitoBean
-    private ContractLifecycleService contractLifecycleService;
-
-    @MockitoBean
-    private ReviewWorkflowService reviewWorkflowService;
 
     @Test
     void getContractById_shouldReturn200() throws Exception {
@@ -160,9 +131,7 @@ class ContractControllerTest {
                                             "title": "NDA",
                                             "contractNumber": "NDA-002",
                                             "counterparty": "Microsoft",
-                                            "contractType": "NDA",
-                                            "contractStatus": "DRAFT",
-                                            "riskLevel": "LOW",
+                                            "contractType": "NDA",                                            
                                             "startDate": "2026-08-10",
                                             "endDate": "2027-08-10",
                                             "governingLaw": "German Law",
@@ -189,9 +158,7 @@ class ContractControllerTest {
                                             "title": "",
                                             "contractNumber": "NDA-002",
                                             "counterparty": "Microsoft",
-                                            "contractType": "NDA",
-                                            "contractStatus": "DRAFT",
-                                            "riskLevel": "LOW",
+                                            "contractType": "NDA",                                            
                                             "startDate": "2026-08-10",
                                             "endDate": "2027-08-10",
                                             "governingLaw": "German Law",
@@ -216,8 +183,7 @@ class ContractControllerTest {
                                         "title": "",
                                         "contractNumber": "",
                                         "counterparty": "Microsoft",
-                                        "contractType": "NDA",
-                                        "contractStatus": "DRAFT",
+                                        "contractType": "NDA",                                        
                                         "startDate": "2026-08-10",
                                         "endDate": "2027-08-10",
                                         "governingLaw": "German Law",
@@ -265,9 +231,7 @@ class ContractControllerTest {
                                             "title": "Updated NDA",
                                             "contractNumber": "NDA-002",
                                             "counterparty": "Microsoft",
-                                            "contractType": "NDA",
-                                            "contractStatus": "DRAFT",
-                                            "riskLevel": "LOW",
+                                            "contractType": "NDA",                                            
                                             "startDate": "2026-08-10",
                                             "endDate": "2027-08-10",
                                             "governingLaw": "German Law",
@@ -300,9 +264,7 @@ class ContractControllerTest {
                                             "title": "Updated NDA",
                                             "contractNumber": "NDA-002",
                                             "counterparty": "Microsoft",
-                                            "contractType": "NDA",
-                                            "contractStatus": "DRAFT",
-                                            "riskLevel": "LOW",
+                                            "contractType": "NDA",                                            
                                             "startDate": "2026-08-10",
                                             "endDate": "2027-08-10",
                                             "governingLaw": "German Law",
@@ -327,9 +289,7 @@ class ContractControllerTest {
                                             "title": "",
                                             "contractNumber": "NDA-002",
                                             "counterparty": "Microsoft",
-                                            "contractType": "NDA",
-                                            "contractStatus": "DRAFT",
-                                            "riskLevel": "LOW",
+                                            "contractType": "NDA",                                            
                                             "startDate": "2026-08-10",
                                             "endDate": "2027-08-10",
                                             "governingLaw": "German Law",
@@ -1541,633 +1501,5 @@ class ContractControllerTest {
                                 .isDescending()
                 )
         );
-    }
-
-    @Test
-    void getAllContracts_shouldReturn400WhenStartDateRangeIsInvalid() throws Exception {
-
-        mockMvc.perform(
-                        get("/contracts")
-                                .param("startDateFrom", "2026-10-01")
-                                .param("startDateTo", "2026-09-01")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message")
-                        .value("startDateFrom must be before or equal to startDateTo"));
-    }
-
-    @Test
-    void getAllContracts_shouldReturn400WhenValueRangeIsInvalid() throws Exception {
-
-        mockMvc.perform(
-                        get("/contracts")
-                                .param("minValue", "100000")
-                                .param("maxValue", "50000")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message")
-                        .value("minValue must be less than or equal to maxValue"));
-    }
-
-    @Test
-    void getAllContracts_shouldReturn400WhenEndDateRangeIsInvalid() throws Exception {
-
-        mockMvc.perform(
-                        get("/contracts")
-                                .param("endDateFrom", "2026-10-01")
-                                .param("endDateTo", "2026-09-01")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message")
-                        .value("endDateFrom must be before or equal to endDateTo"));
-    }
-
-    @Test
-    void getRiskAssessment_shouldReturnRiskAssessment() throws Exception {
-
-        RiskFactor factor = new RiskFactor(
-                "HIGH_CONTRACT_VALUE",
-                30,
-                "Contract value exceeds € 100.000",
-                "High contract value increases potential financial exposure"
-        );
-
-        List<RiskFactor> factors = List.of(factor);
-
-        RiskAssessment assessment = new RiskAssessment(
-                30,
-                RiskLevel.HIGH,
-                factors
-        );
-
-        when(riskAssessmentService.assess(any(Contract.class)))
-                .thenReturn(assessment);
-
-        Contract contract = new Contract();
-        contract.setId(1L);
-        contract.setTitle("High Value Contract");
-
-        when(contractService.findById(1L))
-                .thenReturn(contract);
-
-        RiskFactorResponse factorResponse = new RiskFactorResponse();
-        factorResponse.setCode("HIGH_CONTRACT_VALUE");
-        factorResponse.setPoints(30);
-        factorResponse.setReason("Contract value exceeds € 100.000");
-        factorResponse.setRiskExplanation(
-                "High contract value increases potential financial exposure"
-        );
-
-        RiskAssessmentResponse response = new RiskAssessmentResponse();
-        response.setScore(30);
-        response.setRiskLevel(RiskLevel.HIGH);
-        response.setFactors(List.of(factorResponse));
-
-        when(riskAssessmentMapper.toResponse(assessment))
-                .thenReturn(response);
-
-        mockMvc.perform(
-                        get("/contracts/1/risk-assessment")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.score").value(30))
-                .andExpect(jsonPath("$.riskLevel").value("HIGH"))
-                .andExpect(jsonPath("$.factors[0].code").value("HIGH_CONTRACT_VALUE"))
-                .andExpect(jsonPath("$.factors[0].points").value(30))
-                .andExpect(jsonPath("$.factors[0].reason")
-                        .value("Contract value exceeds € 100.000"))
-                .andExpect(jsonPath("$.factors[0].riskExplanation")
-                .value("High contract value increases potential financial exposure"));
-
-        verify(contractService).findById(1L);
-        verify(riskAssessmentService).assess(contract);
-        verify(riskAssessmentMapper).toResponse(assessment);
-    }
-
-    @Test
-    void getRiskAssessment_shouldReturn404() throws Exception {
-
-        when(contractService.findById(999L))
-                .thenThrow(new ContractNotFoundException(999L));
-
-        mockMvc.perform(get("/contracts/999/risk-assessment"))
-                .andExpect(status().isNotFound());
-
-        verify(contractService).findById(999L);
-        verify(riskAssessmentService, never()).assess(any(Contract.class));
-    }
-
-    @Test
-    void getDecisionSupport_shouldReturnDecisionSupport() throws Exception {
-
-        RiskFactor factor = new RiskFactor(
-                "HIGH_CONTRACT_VALUE",
-                30,
-                "Contract value exceeds € 100.000",
-                "High contract value increases potential financial exposure"
-        );
-
-        List<RiskFactor> factors = List.of(factor);
-
-        RiskAssessment assessment = new RiskAssessment(
-                30,
-                RiskLevel.HIGH,
-                factors
-        );
-
-        when(riskAssessmentService.assess(any(Contract.class)))
-                .thenReturn(assessment);
-
-        Contract contract = new Contract();
-        contract.setId(1L);
-        contract.setTitle("High Value Contract");
-
-        when(contractService.findById(1L))
-                .thenReturn(contract);
-
-        DecisionSupport decisionSupport = new DecisionSupport(
-                "Finance review required",
-                "Contract value exceeds € 100.000",
-                List.of(
-                        ApprovalRole.LEGAL,
-                        ApprovalRole.FINANCE,
-                        ApprovalRole.MANAGEMENT
-                ),
-                DecisionPriority.MEDIUM,
-                "Route contract for Legal, Finance, Management approval"
-        );
-
-        when(decisionSupportService.generate(assessment))
-                .thenReturn(decisionSupport);
-
-        DecisionSupportResponse response = new DecisionSupportResponse();
-        response.setRecommendation("Finance review required");
-        response.setRationale("Contract value exceeds € 100.000");
-        response.setRequiredApprovals(List.of(
-                ApprovalRole.LEGAL,
-                ApprovalRole.FINANCE,
-                ApprovalRole.MANAGEMENT
-        ));
-        response.setPriority(DecisionPriority.MEDIUM);
-        response.setNextAction("Route contract for Legal, Finance, Management approval");
-
-        when(decisionSupportMapper.toDecisionSupportResponse(decisionSupport))
-                .thenReturn(response);
-
-        mockMvc.perform(
-                        get("/contracts/1/decision-support")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.recommendation").value("Finance review required"))
-                .andExpect(jsonPath("$.rationale").value("Contract value exceeds € 100.000"))
-                .andExpect(jsonPath("$.requiredApprovals[0]").value("LEGAL"))
-                .andExpect(jsonPath("$.requiredApprovals[1]").value("FINANCE"))
-                .andExpect(jsonPath("$.requiredApprovals[2]").value("MANAGEMENT"))
-                .andExpect(jsonPath("$.priority").value("MEDIUM"))
-                .andExpect(jsonPath("$.nextAction").value("Route contract for Legal, Finance, Management approval"));
-
-        verify(contractService).findById(1L);
-        verify(riskAssessmentService).assess(contract);
-        verify(decisionSupportService).generate(assessment);
-        verify(decisionSupportMapper).toDecisionSupportResponse(decisionSupport);
-    }
-
-    @Test
-    void getDecisionSupport_shouldReturn404() throws Exception {
-
-        when(contractService.findById(999L))
-                .thenThrow(new ContractNotFoundException(999L));
-
-        mockMvc.perform(get("/contracts/999/decision-support"))
-                .andExpect(status().isNotFound());
-
-        verify(contractService).findById(999L);
-        verify(riskAssessmentService, never())
-                .assess(any(Contract.class));
-        verify(decisionSupportService, never())
-                .generate(any(RiskAssessment.class));
-    }
-
-    @Test
-    void changeContractStatus_shouldChangeStatusSuccessfully() throws Exception {
-
-        Contract contract = new Contract();
-        contract.setId(1L);
-        contract.setContractStatus(ContractStatus.SIGNED);
-
-        ContractResponse response = new ContractResponse();
-        response.setId(1L);
-        response.setContractStatus(ContractStatus.SIGNED);
-
-        when(contractLifecycleService.changeStatus(
-                eq(1L),
-                eq(ContractStatus.SIGNED)
-        )).thenReturn(contract);
-
-        when(contractMapper.toResponse(contract))
-                .thenReturn(response);
-
-        mockMvc.perform(
-                        patch("/contracts/1/status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                            {
-                                "status": "SIGNED"
-                            }
-                            """)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.contractStatus")
-                        .value("SIGNED"));
-
-        verify(contractLifecycleService)
-                .changeStatus(1L, ContractStatus.SIGNED);
-
-        verify(contractMapper)
-                .toResponse(contract);
-    }
-
-    @Test
-    void changeReviewStatus_shouldChangeStatusSuccessfully() throws Exception {
-
-        Contract contract = new Contract();
-        contract.setId(1L);
-        contract.setReviewStatus(ReviewStatus.IN_REVIEW);
-
-        ContractResponse response = new ContractResponse();
-        response.setId(1L);
-        response.setReviewStatus(ReviewStatus.IN_REVIEW);
-
-        when(reviewWorkflowService.changeStatus(
-                eq(1L),
-                eq(ReviewStatus.IN_REVIEW)
-        )).thenReturn(contract);
-
-        when(contractMapper.toResponse(contract))
-                .thenReturn(response);
-
-        mockMvc.perform(
-                        patch("/contracts/1/review-status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                            {
-                                "status": "IN_REVIEW"
-                            }
-                            """)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.reviewStatus")
-                        .value("IN_REVIEW"));
-
-        verify(reviewWorkflowService)
-                .changeStatus(1L, ReviewStatus.IN_REVIEW);
-
-        verify(contractMapper)
-                .toResponse(contract);
-    }
-
-    @Test
-    void changeContractStatus_shouldReturnBadRequestForInvalidTransition()
-            throws Exception {
-
-        when(contractLifecycleService.changeStatus(
-                eq(1L),
-                eq(ContractStatus.ACTIVE)
-        )).thenThrow(
-                new InvalidContractStatusTransitionException(
-                        ContractStatus.DRAFT,
-                        ContractStatus.ACTIVE
-                )
-        );
-
-        mockMvc.perform(
-                        patch("/contracts/1/status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                            {
-                                "status": "ACTIVE"
-                            }
-                            """)
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(
-                                        "Invalid contract status transition: DRAFT -> ACTIVE"
-                                )
-                );
-
-        verify(contractLifecycleService)
-                .changeStatus(1L, ContractStatus.ACTIVE);
-    }
-
-    @Test
-    void changeReviewStatus_shouldReturnBadRequestForInvalidTransition()
-            throws Exception {
-
-        when(reviewWorkflowService.changeStatus(
-                eq(1L),
-                eq(ReviewStatus.APPROVED)
-        )).thenThrow(
-                new InvalidReviewStatusTransitionException(
-                        ReviewStatus.PENDING,
-                        ReviewStatus.APPROVED
-                )
-        );
-
-        mockMvc.perform(
-                        patch("/contracts/1/review-status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                            {
-                                "status": "APPROVED"
-                            }
-                            """)
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(
-                                        "Invalid review status transition: PENDING -> APPROVED"
-                                )
-                );
-
-        verify(reviewWorkflowService)
-                .changeStatus(1L, ReviewStatus.APPROVED);
-    }
-
-    @Test
-    void changeContractStatus_shouldReturnNotFoundWhenContractDoesNotExist()
-            throws Exception {
-
-        when(contractLifecycleService.changeStatus(
-                eq(999L),
-                eq(ContractStatus.SIGNED)
-        )).thenThrow(
-                new ContractNotFoundException(999L)
-        );
-
-        mockMvc.perform(
-                        patch("/contracts/999/status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                            {
-                                "status": "SIGNED"
-                            }
-                            """)
-                )
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Contract with id 999 not found")
-                );
-
-        verify(contractLifecycleService)
-                .changeStatus(999L, ContractStatus.SIGNED);
-    }
-
-    @Test
-    void changeReviewStatus_shouldReturnNotFoundWhenContractDoesNotExist()
-            throws Exception {
-
-        when(reviewWorkflowService.changeStatus(
-                eq(999L),
-                eq(ReviewStatus.IN_REVIEW)
-        )).thenThrow(new ContractNotFoundException(999L));
-
-        mockMvc.perform(
-                        patch("/contracts/999/review-status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                        {
-                            "status": "IN_REVIEW"
-                        }
-                        """)
-                )
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Contract with id 999 not found")
-                );
-
-        verify(reviewWorkflowService)
-                .changeStatus(999L, ReviewStatus.IN_REVIEW);
-    }
-
-    @Test
-    void changeContractStatus_shouldReturnBadRequestWhenStatusIsNull()
-            throws Exception {
-
-        mockMvc.perform(
-                        patch("/contracts/1/status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                            {
-                                "status": null
-                            }
-                            """)
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.errors[0]")
-                        .value("status: must not be null"));
-
-        verifyNoInteractions(contractLifecycleService);
-    }
-
-    @Test
-    void changeReviewStatus_shouldReturnBadRequestWhenStatusIsNull()
-            throws Exception {
-
-        mockMvc.perform(
-                        patch("/contracts/1/review-status")
-                                .contentType(APPLICATION_JSON)
-                                .content("""
-                        {
-                            "status": null
-                        }
-                        """)
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.errors[0]")
-                        .value("status: must not be null"));
-
-        verifyNoInteractions(reviewWorkflowService);
-    }
-
-    @Test
-    void startReview_shouldStartReviewSuccessfully() throws Exception {
-
-        Contract contract = new Contract();
-        contract.setId(1L);
-        contract.setReviewStatus(ReviewStatus.IN_REVIEW);
-
-        ContractResponse response = new ContractResponse();
-        response.setId(1L);
-        response.setReviewStatus(ReviewStatus.IN_REVIEW);
-
-        when(reviewWorkflowService.startReview(1L))
-                .thenReturn(contract);
-
-        when(contractMapper.toResponse(contract))
-                .thenReturn(response);
-
-        mockMvc.perform(
-                        post("/contracts/1/review/start")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.reviewStatus")
-                        .value("IN_REVIEW"));
-
-        verify(reviewWorkflowService)
-                .startReview(1L);
-
-        verify(contractMapper)
-                .toResponse(contract);
-    }
-
-    @Test
-    void startReview_shouldReturnNotFoundWhenContractDoesNotExist()
-            throws Exception {
-
-        when(reviewWorkflowService.startReview(999L))
-                .thenThrow(new ContractNotFoundException(999L));
-
-        mockMvc.perform(
-                        post("/contracts/999/review/start")
-                )
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Contract with id 999 not found")
-                );
-
-        verify(reviewWorkflowService)
-                .startReview(999L);
-    }
-
-    @Test
-    void approveReview_shouldApproveReviewSuccessfully() throws Exception {
-
-        Contract contract = new Contract();
-        contract.setId(1L);
-        contract.setReviewStatus(ReviewStatus.APPROVED);
-
-        ContractResponse response = new ContractResponse();
-        response.setId(1L);
-        response.setReviewStatus(ReviewStatus.APPROVED);
-
-        when(reviewWorkflowService.approveReview(1L))
-                .thenReturn(contract);
-
-        when(contractMapper.toResponse(contract))
-                .thenReturn(response);
-
-        mockMvc.perform(
-                        post("/contracts/1/review/approve")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.reviewStatus")
-                        .value("APPROVED"));
-
-        verify(reviewWorkflowService)
-                .approveReview(1L);
-
-        verify(contractMapper)
-                .toResponse(contract);
-    }
-
-    @Test
-    void approveReview_shouldReturnBadRequestForInvalidTransition()
-            throws Exception {
-
-        when(reviewWorkflowService.approveReview(1L))
-                .thenThrow(
-                        new InvalidReviewStatusTransitionException(
-                                ReviewStatus.PENDING,
-                                ReviewStatus.APPROVED
-                        )
-                );
-
-        mockMvc.perform(
-                        post("/contracts/1/review/approve")
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value(
-                                        "Invalid review status transition: PENDING -> APPROVED"
-                                )
-                );
-
-        verify(reviewWorkflowService)
-                .approveReview(1L);
-    }
-
-    @Test
-    void rejectReview_shouldRejectReviewSuccessfully() throws Exception {
-
-        Contract contract = new Contract();
-        contract.setId(1L);
-        contract.setReviewStatus(ReviewStatus.REJECTED);
-
-        ContractResponse response = new ContractResponse();
-        response.setId(1L);
-        response.setReviewStatus(ReviewStatus.REJECTED);
-
-        when(reviewWorkflowService.rejectReview(1L))
-                .thenReturn(contract);
-
-        when(contractMapper.toResponse(contract))
-                .thenReturn(response);
-
-        mockMvc.perform(
-                        post("/contracts/1/review/reject")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.reviewStatus")
-                        .value("REJECTED"));
-
-        verify(reviewWorkflowService)
-                .rejectReview(1L);
-
-        verify(contractMapper)
-                .toResponse(contract);
-    }
-
-    @Test
-    void rejectReview_shouldReturnNotFoundWhenContractDoesNotExist()
-            throws Exception {
-
-        when(reviewWorkflowService.rejectReview(999L))
-                .thenThrow(new ContractNotFoundException(999L));
-
-        mockMvc.perform(
-                        post("/contracts/999/review/reject")
-                )
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(
-                        jsonPath("$.message")
-                                .value("Contract with id 999 not found")
-                );
-
-        verify(reviewWorkflowService)
-                .rejectReview(999L);
     }
 }

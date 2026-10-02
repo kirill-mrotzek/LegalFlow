@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.reference.EUCountryRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +46,10 @@ public class ForeignGoverningRuleTest {
         Optional<RiskFactor> result = rule.evaluate(contract);
 
         assertTrue(result.isPresent());
-        assertEquals("FOREIGN_GOVERNING_LAW_EU", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.FOREIGN_GOVERNING_LAW_EU,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(10, result.get().getPoints());
     }
 
@@ -58,7 +62,10 @@ public class ForeignGoverningRuleTest {
         Optional<RiskFactor> result = rule.evaluate(contract);
 
         assertTrue(result.isPresent());
-        assertEquals("FOREIGN_GOVERNING_LAW_NON_EU", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(20, result.get().getPoints());
     }
 

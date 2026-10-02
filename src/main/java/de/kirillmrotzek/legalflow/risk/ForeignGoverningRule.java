@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
 import de.kirillmrotzek.legalflow.enums.GoverningLawCategory;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ public class ForeignGoverningRule implements RiskRule {
             case EU ->
                     Optional.of(
                             new RiskFactor(
-                                    "FOREIGN_GOVERNING_LAW_EU",
+                                    RiskFactorCode.FOREIGN_GOVERNING_LAW_EU,
                                     properties.getForeignGoverningLaw().getEuPoints(),
                                     "Contract is governed by the law of an EU Member State",
                                     "EU governing law may require additional legal review of applicable foreign law"
@@ -39,7 +40,7 @@ public class ForeignGoverningRule implements RiskRule {
             case NON_EU ->
                     Optional.of(
                             new RiskFactor(
-                                    "FOREIGN_GOVERNING_LAW_NON_EU",
+                                    RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU,
                                     properties.getForeignGoverningLaw().getNonEuPoints(),
                                     "Contract is governed by the law of a non-EU country",
                                     "Non-EU governing law increases legal complexity and potential enforcement risk"

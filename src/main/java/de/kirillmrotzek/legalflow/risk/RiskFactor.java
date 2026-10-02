@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.risk;
 
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class RiskFactor {
 
-    private final String code;
+    private final RiskFactorCode riskFactorCode;
 
     private final int points;
 

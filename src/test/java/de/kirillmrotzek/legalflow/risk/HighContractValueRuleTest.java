@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,10 @@ public class HighContractValueRuleTest {
 
         assertTrue(result.isPresent());
 
-        assertEquals("HIGH_CONTRACT_VALUE", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(30, result.get().getPoints());
         assertEquals(
                 "High contract value increases potential financial exposure",
@@ -104,7 +108,10 @@ public class HighContractValueRuleTest {
         Optional<RiskFactor> result = configuredRule.evaluate(contract);
 
         assertTrue(result.isPresent());
-        assertEquals("HIGH_CONTRACT_VALUE", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(50, result.get().getPoints());
     }
 }

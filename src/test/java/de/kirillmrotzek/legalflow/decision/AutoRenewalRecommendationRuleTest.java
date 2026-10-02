@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.decision;
 
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
@@ -19,7 +20,7 @@ public class AutoRenewalRecommendationRuleTest {
     void evaluate_shouldReturnRecommendation_whenAutoRenewalExists() {
 
         RiskFactor factor = new RiskFactor(
-                "AUTO_RENEWAL",
+                RiskFactorCode.AUTO_RENEWAL,
                 30,
                 "Contract contains auto renewal",
                 "Automatic renewal can extend contractual obligations if termination deadlines are missed"
@@ -70,7 +71,7 @@ public class AutoRenewalRecommendationRuleTest {
     void evaluate_shouldReturnEmpty_whenAutoRenewalDoesNotExist(){
 
         RiskFactor factor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
+                RiskFactorCode.UNLIMITED_LIABILITY,
                 30,
                 "Contract contains unlimited liability",
                 "Unlimited liability increases potential financial exposure"

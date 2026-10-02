@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.service;
 
 import de.kirillmrotzek.legalflow.decision.LegalReviewDecision;
 import de.kirillmrotzek.legalflow.enums.ReviewType;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
@@ -37,7 +38,7 @@ class LegalReviewDecisionServiceTest {
                 80,
                 RiskLevel.HIGH,
                 List.of(new RiskFactor(
-                        "FOREIGN_GOVERNING_LAW_NON_EU",
+                        RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU,
                         20,
                         "Foreign governing law outside EU",
                         "Enhanced legal review required"
@@ -59,7 +60,7 @@ class LegalReviewDecisionServiceTest {
                 80,
                 RiskLevel.HIGH,
                 List.of(new RiskFactor(
-                        "UNLIMITED_LIABILITY",
+                        RiskFactorCode.UNLIMITED_LIABILITY,
                         20,
                         "Unlimited liability",
                         "Enhanced legal review required"
@@ -77,13 +78,13 @@ class LegalReviewDecisionServiceTest {
                 100,
                 RiskLevel.HIGH,
                 List.of(new RiskFactor(
-                        "FOREIGN_GOVERNING_LAW_NON_EU",
-                        20,
-                        "Foreign governing law outside EU",
-                        "Enhanced legal review required"
-                ),
+                                RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU,
+                                20,
+                                "Foreign governing law outside EU",
+                                "Enhanced legal review required"
+                        ),
                         new RiskFactor(
-                                "UNLIMITED_LIABILITY",
+                                RiskFactorCode.UNLIMITED_LIABILITY,
                                 20,
                                 "Unlimited liability",
                                 "Enhanced legal review required"
@@ -99,9 +100,4 @@ class LegalReviewDecisionServiceTest {
                 decision.getReason()
         );
     }
-
-
-
-
-
 }

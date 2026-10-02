@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,10 @@ public class LongTermContractRuleTest {
 
         assertTrue(result.isPresent());
 
-        assertEquals("LONG_TERM_CONTRACT", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.LONG_TERM_CONTRACT,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(15, result.get().getPoints());
     }
 
@@ -103,7 +107,10 @@ public class LongTermContractRuleTest {
         Optional<RiskFactor> result = configuredRule.evaluate(contract);
 
         assertTrue(result.isPresent());
-        assertEquals("LONG_TERM_CONTRACT", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.LONG_TERM_CONTRACT,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(25, result.get().getPoints());
     }
 }

@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.decision;
 
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,9 @@ public class HighContractValueRecommendationRule implements RecommendationRule {
 
         Optional<RiskFactor> factor = assessment.getFactors()
                 .stream()
-                .filter(f -> "HIGH_CONTRACT_VALUE".equals(f.getCode()))
+                .filter(f ->
+                        f.getRiskFactorCode() == RiskFactorCode.HIGH_CONTRACT_VALUE
+                )
                 .findFirst();
 
         return factor.map(f -> new RecommendationResult(

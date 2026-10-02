@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,10 @@ public class AutoRenewalRuleTest {
 
         assertTrue(result.isPresent());
 
-        assertEquals("AUTO_RENEWAL", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.AUTO_RENEWAL,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(10, result.get().getPoints());
     }
 
@@ -86,7 +90,10 @@ public class AutoRenewalRuleTest {
         Optional<RiskFactor> result = configuredRule.evaluate(contract);
 
         assertTrue(result.isPresent());
-        assertEquals("AUTO_RENEWAL", result.get().getCode());
+        assertEquals(
+                RiskFactorCode.AUTO_RENEWAL,
+                result.get().getRiskFactorCode()
+        );
         assertEquals(20, result.get().getPoints());
     }
 }

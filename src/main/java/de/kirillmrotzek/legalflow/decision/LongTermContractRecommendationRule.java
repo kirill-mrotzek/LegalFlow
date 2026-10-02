@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.decision;
 
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,9 @@ public class LongTermContractRecommendationRule implements RecommendationRule {
 
         Optional<RiskFactor> factor = assessment.getFactors()
                 .stream()
-                .filter(f -> "LONG_TERM_CONTRACT".equals(f.getCode()))
+                .filter(f ->
+                        f.getRiskFactorCode() == RiskFactorCode.LONG_TERM_CONTRACT
+                )
                 .findFirst();
 
         return factor.map(f -> new RecommendationResult(

@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.decision;
 
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
@@ -19,7 +20,7 @@ public class HighContractValueRecommendationRuleTest {
     void evaluate_shouldReturnRecommendation_whenHighContractValueExists(){
 
         RiskFactor factor = new RiskFactor(
-                "HIGH_CONTRACT_VALUE",
+                RiskFactorCode.HIGH_CONTRACT_VALUE,
                 30,
                 "Contract value exceeds € 100.000",
                 "High contract value increases potential financial exposure"
@@ -74,7 +75,7 @@ public class HighContractValueRecommendationRuleTest {
     void evaluate_shouldReturnEmpty_whenHighContractValueDoesNotExist(){
 
         RiskFactor factor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
+                RiskFactorCode.UNLIMITED_LIABILITY,
                 25,
                 "Contract contains unlimited liability",
                 "Unlimited liability increases potential financial exposure"
@@ -94,6 +95,4 @@ public class HighContractValueRecommendationRuleTest {
 
         assertTrue(result.isEmpty());
     }
-
-
 }

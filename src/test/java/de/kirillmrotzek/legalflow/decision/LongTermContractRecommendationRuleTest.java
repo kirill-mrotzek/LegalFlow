@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.decision;
 
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
@@ -19,7 +20,7 @@ public class LongTermContractRecommendationRuleTest {
     void evaluate_shouldReturnRecommendation_whenLongTermContractExists() {
 
         RiskFactor factor = new RiskFactor(
-                "LONG_TERM_CONTRACT",
+                RiskFactorCode.LONG_TERM_CONTRACT,
                 30,
                 "Long term Contract",
                 "Long contract terms increase the duration of legal and financial exposure"
@@ -70,7 +71,7 @@ public class LongTermContractRecommendationRuleTest {
     void evaluate_shouldReturnEmpty_whenLongTermContractDoesNotExist(){
 
         RiskFactor factor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
+                RiskFactorCode.UNLIMITED_LIABILITY,
                 30,
                 "Contract contains unlimited liability",
                 "Unlimited liability increases potential financial exposure"

@@ -2,6 +2,7 @@ package de.kirillmrotzek.legalflow.decision;
 
 import de.kirillmrotzek.legalflow.enums.ApprovalRole;
 import de.kirillmrotzek.legalflow.enums.DecisionPriority;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.risk.RiskFactor;
@@ -19,7 +20,7 @@ public class ForeignGoverningLawRecommendationRuleTest {
     void evaluate_shouldReturnRecommendation_whenForeignGoverningLawExists() {
 
         RiskFactor factor = new RiskFactor(
-                "FOREIGN_GOVERNING_LAW_NON_EU",
+                RiskFactorCode.FOREIGN_GOVERNING_LAW_NON_EU,
                 30,
                 "Contract is governed by non-EU law",
                 "Non-EU governing law increases legal complexity and potential enforcement risk"
@@ -70,7 +71,7 @@ public class ForeignGoverningLawRecommendationRuleTest {
     void evaluate_shouldReturnEmpty_whenForeignGoverningLawDoesNotExist(){
 
         RiskFactor factor = new RiskFactor(
-                "UNLIMITED_LIABILITY",
+                RiskFactorCode.UNLIMITED_LIABILITY,
                 30,
                 "Contract contains unlimited liability",
                 "Unlimited liability increases potential financial exposure"

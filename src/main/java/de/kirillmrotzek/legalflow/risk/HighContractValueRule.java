@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,9 @@ public class HighContractValueRule implements RiskRule {
                 contract.getContractValue()
                         .compareTo(properties.getHighContractValue().getThreshold()) > 0) {
 
-            NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
+            NumberFormat numberFormat =
+                    NumberFormat.getNumberInstance(Locale.GERMANY);
+
             String formattedThreshold =
                     numberFormat.format(
                             properties.getHighContractValue().getThreshold()
@@ -30,7 +33,7 @@ public class HighContractValueRule implements RiskRule {
 
             return Optional.of(
                     new RiskFactor(
-                            "HIGH_CONTRACT_VALUE",
+                            RiskFactorCode.HIGH_CONTRACT_VALUE,
                             properties.getHighContractValue().getPoints(),
                             "Contract value exceeds € " + formattedThreshold,
                             "High contract value increases potential financial exposure"

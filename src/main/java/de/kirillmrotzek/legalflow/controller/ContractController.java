@@ -1,8 +1,8 @@
 package de.kirillmrotzek.legalflow.controller;
 
-import de.kirillmrotzek.legalflow.service.*;
-import de.kirillmrotzek.legalflow.decision.DecisionSupport;
-import de.kirillmrotzek.legalflow.dto.*;
+import de.kirillmrotzek.legalflow.dto.ContractPageResponse;
+import de.kirillmrotzek.legalflow.dto.ContractRequest;
+import de.kirillmrotzek.legalflow.dto.ContractResponse;
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
@@ -11,10 +11,8 @@ import de.kirillmrotzek.legalflow.exception.InvalidDateRangeException;
 import de.kirillmrotzek.legalflow.exception.InvalidValueRangeException;
 import de.kirillmrotzek.legalflow.exception.ValidationErrorResponse;
 import de.kirillmrotzek.legalflow.mapper.ContractMapper;
-import de.kirillmrotzek.legalflow.mapper.DecisionSupportMapper;
-import de.kirillmrotzek.legalflow.mapper.RiskAssessmentMapper;
 import de.kirillmrotzek.legalflow.model.Contract;
-import de.kirillmrotzek.legalflow.risk.RiskAssessment;
+import de.kirillmrotzek.legalflow.service.ContractService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -46,12 +44,6 @@ public class ContractController {
 
     private final ContractService contractService;
     private final ContractMapper contractMapper;
-    private final RiskAssessmentService riskAssessmentService;
-    private final RiskAssessmentMapper riskAssessmentMapper;
-    private final DecisionSupportService decisionSupportService;
-    private final DecisionSupportMapper decisionSupportMapper;
-    private final ContractLifecycleService contractLifecycleService;
-    private final ReviewWorkflowService reviewWorkflowService;
 
     @GetMapping
     @Operation(
@@ -201,41 +193,6 @@ public class ContractController {
         );
     }
 
-    @GetMapping("/{id}/risk-assessment")
-    @Operation(
-            summary = "Get contract risk assessment",
-            description = "Returns the risk assessment of a contract, " +
-                    "including its risk score, risk level, and contributing risk factors.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Risk assessment calculated successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Contract not found",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorResponse.class)
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<RiskAssessmentResponse> getRiskAssessment(
-            @Parameter(description = "Unique contract ID")
-            @PathVariable Long id){
-
-        Contract contract = contractService.findById(id);
-
-        RiskAssessment assessment =
-                riskAssessmentService.assess(contract);
-
-        RiskAssessmentResponse response =
-                riskAssessmentMapper.toResponse(assessment);
-
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping
     @Operation(
             summary = "Create a new contract",
@@ -326,245 +283,6 @@ public class ContractController {
         );
     }
 
-    @PatchMapping("/{id}/status")
-    @Operation(
-            summary = "Change contract status",
-            description =
-                    "Changes the lifecycle status of a contract. " +
-                            "The requested transition must be allowed by the contract lifecycle rules.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Contract status changed successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Invalid status transition or request",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            oneOf = {
-                                                    ErrorResponse.class,
-                                                    ValidationErrorResponse.class
-                                            }
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Contract not found",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<ContractResponse> changeContractStatus(
-            @Parameter(description = "Unique contract ID")
-            @PathVariable Long id,
-            @Valid @RequestBody ChangeContractStatusRequest request) {
-
-        Contract updatedContract =
-                contractLifecycleService.changeStatus(
-                        id,
-                        request.getStatus()
-                );
-
-        return ResponseEntity.ok(
-                contractMapper.toResponse(updatedContract)
-        );
-    }
-
-    @PatchMapping("/{id}/review-status")
-    @Operation(
-            summary = "Change contract review status",
-            description =
-                    "Changes the review workflow status of a contract. " +
-                            "The requested transition must be allowed by the review workflow rules.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Contract review status changed successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Invalid review status transition or request",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            oneOf = {
-                                                    ErrorResponse.class,
-                                                    ValidationErrorResponse.class
-                                            }
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Contract not found",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<ContractResponse> changeReviewStatus(
-            @Parameter(description = "Unique contract ID")
-            @PathVariable Long id,
-            @Valid @RequestBody ChangeReviewStatusRequest request) {
-
-        Contract updatedContract =
-                reviewWorkflowService.changeStatus(
-                        id,
-                        request.getStatus()
-                );
-
-        return ResponseEntity.ok(
-                contractMapper.toResponse(updatedContract)
-        );
-    }
-
-    @PostMapping("/{id}/review/start")
-    @Operation(
-            summary = "Start contract review",
-            description =
-                    "Starts the legal review of a contract. " +
-                            "The review must currently be in PENDING status.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Contract review started successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Invalid review status transition",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Contract not found",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<ContractResponse> startReview(
-            @Parameter(description = "Unique contract ID")
-            @PathVariable Long id) {
-
-        Contract updatedContract =
-                reviewWorkflowService.startReview(id);
-
-        return ResponseEntity.ok(
-                contractMapper.toResponse(updatedContract)
-        );
-    }
-
-    @PostMapping("/{id}/review/approve")
-    @Operation(
-            summary = "Approve contract review",
-            description =
-                    "Approves the legal review of a contract. " +
-                            "The review must currently be in IN_REVIEW status.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Contract review approved successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Invalid review status transition",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Contract not found",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<ContractResponse> approveReview(
-            @Parameter(description = "Unique contract ID")
-            @PathVariable Long id) {
-
-        Contract updatedContract =
-                reviewWorkflowService.approveReview(id);
-
-        return ResponseEntity.ok(
-                contractMapper.toResponse(updatedContract)
-        );
-    }
-
-    @PostMapping("/{id}/review/reject")
-    @Operation(
-            summary = "Reject contract review",
-            description =
-                    "Rejects the legal review of a contract. " +
-                            "The review must currently be in IN_REVIEW status.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Contract review rejected successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Invalid review status transition",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Contract not found",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(
-                                            implementation = ErrorResponse.class
-                                    )
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<ContractResponse> rejectReview(
-            @Parameter(description = "Unique contract ID")
-            @PathVariable Long id) {
-
-        Contract updatedContract =
-                reviewWorkflowService.rejectReview(id);
-
-        return ResponseEntity.ok(
-                contractMapper.toResponse(updatedContract)
-        );
-    }
-
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Delete a contract",
@@ -591,43 +309,5 @@ public class ContractController {
         contractService.delete(id);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}/decision-support")
-    @Operation(
-            summary = "Get decision support",
-            description = "Returns decision support for the contract, " +
-                    "including the recommendation, rationale, required approvals, " +
-                    "priority, and next action.",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Decision support generated successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Contract not found",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorResponse.class)
-                            )
-                    )
-            }
-    )
-    public ResponseEntity<DecisionSupportResponse> getDecisionSupport(
-            @Parameter(description = "Unique contract ID")
-            @PathVariable Long id) {
-        Contract contract = contractService.findById(id);
-
-        RiskAssessment assessment =
-                riskAssessmentService.assess(contract);
-
-        DecisionSupport decisionSupport =
-                decisionSupportService.generate(assessment);
-
-        DecisionSupportResponse decisionSupportResponse =
-                decisionSupportMapper.toDecisionSupportResponse(decisionSupport);
-
-        return ResponseEntity.ok(decisionSupportResponse);
     }
 }

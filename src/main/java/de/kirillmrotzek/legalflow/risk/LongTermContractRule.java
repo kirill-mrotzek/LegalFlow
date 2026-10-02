@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,7 @@ public class LongTermContractRule implements RiskRule {
 
             return Optional.of(
                     new RiskFactor(
-                            "LONG_TERM_CONTRACT",
+                            RiskFactorCode.LONG_TERM_CONTRACT,
                             properties.getLongTermContract().getPoints(),
                             "Contract term exceeds "
                                     + properties.getLongTermContract().getYears()

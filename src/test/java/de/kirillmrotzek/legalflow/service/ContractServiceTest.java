@@ -699,7 +699,7 @@ class ContractServiceTest {
                         RiskLevel.MEDIUM,
                         List.of(
                                 new RiskFactor(
-                                        "UNLIMITED_LIABILITY",
+                                        RiskFactorCode.UNLIMITED_LIABILITY,
                                         25,
                                         "Unlimited liability",
                                         "The contract contains unlimited liability."

@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.risk;
 
 import de.kirillmrotzek.legalflow.config.RiskRuleProperties;
+import de.kirillmrotzek.legalflow.enums.RiskFactorCode;
 import de.kirillmrotzek.legalflow.model.Contract;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ public class UnlimitedLiabilityRule implements RiskRule {
 
             return Optional.of(
                     new RiskFactor(
-                            "UNLIMITED_LIABILITY",
+                            RiskFactorCode.UNLIMITED_LIABILITY,
                             properties.getUnlimitedLiability().getPoints(),
                             "Contract contains unlimited liability",
                             "Unlimited liability increases potential financial exposure"
