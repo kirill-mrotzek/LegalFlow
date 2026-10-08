@@ -1,7 +1,9 @@
 package de.kirillmrotzek.legalflow.security;
 
+import de.kirillmrotzek.legalflow.enums.SecurityAuthority;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
@@ -36,6 +38,16 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/contracts/*/review/start")
+                        .hasAuthority(SecurityAuthority.REVIEW_START.name())
+
+                        .requestMatchers(HttpMethod.POST, "/contracts/*/review/approve")
+                        .hasAuthority(SecurityAuthority.REVIEW_APPROVE.name())
+
+                        .requestMatchers(HttpMethod.POST, "/contracts/*/review/reject")
+                        .hasAuthority(SecurityAuthority.REVIEW_REJECT.name())
+
                         .anyRequest().authenticated()
                 );
 
@@ -53,10 +65,27 @@ public class SecurityConfig {
         UserDetails user = User.builder()
                 .username("kirill")
                 .password(passwordEncoder.encode("password"))
-                .authorities("CONTRACT_READ")
+                .authorities(
+                        SecurityAuthority.CONTRACT_READ.name(),
+                        SecurityAuthority.CONTRACT_CREATE.name(),
+                        SecurityAuthority.CONTRACT_UPDATE.name(),
+                        SecurityAuthority.REVIEW_START.name(),
+                        SecurityAuthority.REVIEW_APPROVE.name(),
+                        SecurityAuthority.REVIEW_REJECT.name()
+                )
                 .build();
 
-        return new InMemoryUserDetailsManager(user);
+        UserDetails reviewer = User.builder()
+                .username("reviewer")
+                .password(passwordEncoder.encode("password"))
+                .authorities(
+                        SecurityAuthority.CONTRACT_READ.name(),
+                        SecurityAuthority.REVIEW_START.name(),
+                        SecurityAuthority.REVIEW_REJECT.name()
+                )
+                .build();
+
+        return new InMemoryUserDetailsManager(user, reviewer);
     }
 
     @Bean

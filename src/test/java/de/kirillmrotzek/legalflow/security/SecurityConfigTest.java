@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -33,5 +34,12 @@ class SecurityConfigTest {
                 .andExpect(status().isOk());
     }
 
-
+    @Test
+    void authenticatedUserWithoutRequiredAuthority_shouldReturn403() throws Exception {
+        mockMvc.perform(
+                        post("/contracts/1/review/approve")
+                                .with(httpBasic("reviewer", "password"))
+                )
+                .andExpect(status().isForbidden());
+    }
 }
