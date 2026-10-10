@@ -78,4 +78,59 @@ class ReviewApprovalSecurityTest {
 
         return contract;
     }
+
+    @Test
+    void reviewerWithoutReviewApproveAuthority_shouldBeForbidden()
+            throws Exception {
+
+        Contract contract = createContractInReview();
+        contract = contractRepository.save(contract);
+
+        mockMvc.perform(
+                        post("/contracts/{id}/review/approve", contract.getId())
+                                .with(httpBasic("reviewer", "password"))
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void financeUser_shouldNotApproveLegalReview()
+            throws Exception {
+
+        Contract contract = createContractInReview();
+        contract = contractRepository.save(contract);
+
+        mockMvc.perform(
+                        post("/contracts/{id}/review/approve", contract.getId())
+                                .with(httpBasic("finance", "password"))
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void managementUser_shouldNotApproveLegalReview()
+            throws Exception {
+
+        Contract contract = createContractInReview();
+        contract = contractRepository.save(contract);
+
+        mockMvc.perform(
+                        post("/contracts/{id}/review/approve", contract.getId())
+                                .with(httpBasic("management", "password"))
+                )
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void unauthenticatedUser_shouldBeUnauthorized()
+            throws Exception {
+
+        Contract contract = createContractInReview();
+        contract = contractRepository.save(contract);
+
+        mockMvc.perform(
+                        post("/contracts/{id}/review/approve", contract.getId())
+                )
+                .andExpect(status().isUnauthorized());
+    }
 }

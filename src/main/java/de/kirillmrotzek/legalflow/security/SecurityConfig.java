@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.security;
 
 import de.kirillmrotzek.legalflow.enums.SecurityAuthority;
+import de.kirillmrotzek.legalflow.enums.SecurityRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -62,18 +63,12 @@ public class SecurityConfig {
     @Bean
     UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
 
-        UserDetails user = User.builder()
-                .username("kirill")
-                .password(passwordEncoder.encode("password"))
-                .authorities(
-                        SecurityAuthority.CONTRACT_READ.name(),
-                        SecurityAuthority.CONTRACT_CREATE.name(),
-                        SecurityAuthority.CONTRACT_UPDATE.name(),
-                        SecurityAuthority.REVIEW_START.name(),
-                        SecurityAuthority.REVIEW_APPROVE.name(),
-                        SecurityAuthority.REVIEW_REJECT.name()
-                )
-                .build();
+        UserDetails user = userWithRole(
+                "kirill",
+                "password",
+                SecurityRole.LEGAL,
+                passwordEncoder
+        );
 
         UserDetails reviewer = User.builder()
                 .username("reviewer")
@@ -85,7 +80,34 @@ public class SecurityConfig {
                 )
                 .build();
 
-        return new InMemoryUserDetailsManager(user, reviewer);
+        UserDetails finance = userWithRole(
+                "finance",
+                "password",
+                SecurityRole.FINANCE,
+                passwordEncoder
+        );
+
+        UserDetails management = userWithRole(
+                "management",
+                "password",
+                SecurityRole.MANAGEMENT,
+                passwordEncoder
+        );
+
+        UserDetails admin = userWithRole(
+                "admin",
+                "password",
+                SecurityRole.ADMIN,
+                passwordEncoder
+        );
+
+        return new InMemoryUserDetailsManager(
+                user,
+                reviewer,
+                finance,
+                management,
+                admin
+        );
     }
 
     @Bean
@@ -94,5 +116,21 @@ public class SecurityConfig {
             throws Exception {
 
         return configuration.getAuthenticationManager();
+    }
+
+    private UserDetails userWithRole(
+            String username,
+            String password,
+            SecurityRole role,
+            PasswordEncoder passwordEncoder) {
+
+        return User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .authorities(
+                        SecurityRoleAuthorityMapper.authoritiesFor(role)
+                                .toArray(String[]::new)
+                )
+                .build();
     }
 }
