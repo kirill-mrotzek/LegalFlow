@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ public class ContractService {
     private final RiskAssessmentService riskAssessmentService;
     private final LegalReviewDecisionService legalReviewDecisionService;
 
+    @PreAuthorize("hasAuthority('CONTRACT_CREATE')")
     public Contract save(Contract contract) {
 
         contract.setContractStatus(ContractStatus.DRAFT);
@@ -51,6 +53,7 @@ public class ContractService {
         return contractRepository.save(contract);
     }
 
+    @PreAuthorize("hasAuthority('CONTRACT_READ')")
     public Page<Contract> search(
             ContractStatus status,
             ContractType type,
@@ -133,11 +136,13 @@ public class ContractService {
         );
     }
 
+    @PreAuthorize("hasAuthority('CONTRACT_READ')")
     public Contract findById(Long id) {
         return contractRepository.findById(id)
                 .orElseThrow(() -> new ContractNotFoundException(id));
     }
 
+    @PreAuthorize("hasAuthority('CONTRACT_UPDATE')")
     public Contract update(Long id, Contract contract) {
         Contract existingContract = findById(id);
 

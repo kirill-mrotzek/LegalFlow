@@ -7,6 +7,7 @@ import de.kirillmrotzek.legalflow.lifecycle.ReviewStatusTransitionValidator;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,7 @@ public class ReviewWorkflowService {
         return contractRepository.save(contract);
     }
 
+    @PreAuthorize("hasAuthority('REVIEW_START')")
     public Contract startReview(Long contractId) {
 
         return changeStatus(
@@ -53,6 +55,7 @@ public class ReviewWorkflowService {
         );
     }
 
+    @PreAuthorize("hasAuthority('REVIEW_APPROVE')")
     public Contract approveReview(Long contractId) {
 
         return changeStatus(
@@ -61,6 +64,7 @@ public class ReviewWorkflowService {
         );
     }
 
+    @PreAuthorize("hasAuthority('REVIEW_REJECT')")
     public Contract rejectReview(Long contractId) {
 
         return changeStatus(
