@@ -178,6 +178,7 @@ public class ContractService {
         return contractRepository.save(existingContract);
     }
 
+    @PreAuthorize("hasAuthority('CONTRACT_DELETE')")
     public void delete(Long id) {
         Contract existingContract = findById(id);
         contractRepository.delete(existingContract);

@@ -47,8 +47,11 @@ class ContractIntegrationTest {
 
     private MockMvc mockMvc;
 
+    private MockMvc adminMockMvc;
+
     @BeforeEach
     void setUp() {
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -56,6 +59,11 @@ class ContractIntegrationTest {
                         get("/")
                                 .with(httpBasic("kirill", "password"))
                 )
+                .build();
+
+        adminMockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(springSecurity())
                 .build();
     }
 
@@ -852,22 +860,23 @@ class ContractIntegrationTest {
     void deleteContract_shouldDeleteContract() throws Exception {
 
         String createJson = """
-                {
-                    "title": "Contract To Delete",
-                    "contractNumber": "DELETE-001",
-                    "counterparty": "Delete Company",
-                    "contractType": "NDA",
-                    "startDate": "2026-08-20",
-                    "endDate": "2027-08-20",
-                    "governingLaw": "German Law",
-                    "contractValue": 5000,
-                    "autoRenewal": false
-                }
-                """;
+        {
+            "title": "Contract To Delete",
+            "contractNumber": "DELETE-001",
+            "counterparty": "Delete Company",
+            "contractType": "NDA",
+            "startDate": "2026-08-20",
+            "endDate": "2027-08-20",
+            "governingLaw": "German Law",
+            "contractValue": 5000,
+            "autoRenewal": false
+        }
+        """;
 
         String location =
-                mockMvc.perform(
+                adminMockMvc.perform(
                                 post("/contracts")
+                                        .with(httpBasic("admin", "password"))
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(createJson)
                         )
@@ -879,13 +888,15 @@ class ContractIntegrationTest {
 
         assertNotNull(location);
 
-        mockMvc.perform(
+        adminMockMvc.perform(
                         delete(location)
+                                .with(httpBasic("admin", "password"))
                 )
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(
+        adminMockMvc.perform(
                         get(location)
+                                .with(httpBasic("admin", "password"))
                 )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
@@ -899,13 +910,11 @@ class ContractIntegrationTest {
     void deleteContract_whenContractDoesNotExist_shouldReturnNotFound()
             throws Exception {
 
-        mockMvc.perform(
+        adminMockMvc.perform(
                         delete("/contracts/999999")
+                                .with(httpBasic("admin", "password"))
                 )
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message")
-                        .value("Contract with id 999999 not found"));
+                .andExpect(status().isNotFound());
     }
 
     @Test

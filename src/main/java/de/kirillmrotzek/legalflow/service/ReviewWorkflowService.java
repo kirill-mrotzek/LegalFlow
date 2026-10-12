@@ -18,23 +18,22 @@ public class ReviewWorkflowService {
     private final ContractRepository contractRepository;
     private final ReviewStatusTransitionValidator transitionValidator;
 
+    @PreAuthorize("hasAuthority('REVIEW_STATUS_CHANGE')")
     @Transactional
-    public Contract changeStatus(
+    public Contract changeStatus(Long contractId, ReviewStatus targetStatus) {
+        return changeStatusInternal(contractId, targetStatus);
+    }
+
+    private Contract changeStatusInternal(
             Long contractId,
-            ReviewStatus targetStatus
-    ) {
+            ReviewStatus targetStatus) {
+
         Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() ->
-                        new ContractNotFoundException(contractId)
-                );
+                .orElseThrow(() -> new ContractNotFoundException(contractId));
 
-        ReviewStatus currentStatus =
-                contract.getReviewStatus();
+        ReviewStatus currentStatus = contract.getReviewStatus();
 
-        if (!transitionValidator.isAllowed(
-                currentStatus,
-                targetStatus
-        )) {
+        if (!transitionValidator.isAllowed(currentStatus, targetStatus)) {
             throw new InvalidReviewStatusTransitionException(
                     currentStatus,
                     targetStatus
@@ -47,29 +46,20 @@ public class ReviewWorkflowService {
     }
 
     @PreAuthorize("hasAuthority('REVIEW_START')")
+    @Transactional
     public Contract startReview(Long contractId) {
-
-        return changeStatus(
-                contractId,
-                ReviewStatus.IN_REVIEW
-        );
+        return changeStatusInternal(contractId, ReviewStatus.IN_REVIEW);
     }
 
     @PreAuthorize("hasAuthority('REVIEW_APPROVE')")
+    @Transactional
     public Contract approveReview(Long contractId) {
-
-        return changeStatus(
-                contractId,
-                ReviewStatus.APPROVED
-        );
+        return changeStatusInternal(contractId, ReviewStatus.APPROVED);
     }
 
     @PreAuthorize("hasAuthority('REVIEW_REJECT')")
+    @Transactional
     public Contract rejectReview(Long contractId) {
-
-        return changeStatus(
-                contractId,
-                ReviewStatus.REJECTED
-        );
+        return changeStatusInternal(contractId, ReviewStatus.REJECTED);
     }
 }

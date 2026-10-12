@@ -64,12 +64,15 @@ class SecurityRoleAuthorityMapperTest {
                         SecurityAuthority.CONTRACT_READ.name(),
                         SecurityAuthority.CONTRACT_CREATE.name(),
                         SecurityAuthority.CONTRACT_UPDATE.name(),
+                        SecurityAuthority.CONTRACT_DELETE.name(),
+                        SecurityAuthority.CONTRACT_STATUS_CHANGE.name(),
                         SecurityAuthority.REVIEW_START.name(),
                         SecurityAuthority.REVIEW_APPROVE.name(),
                         SecurityAuthority.REVIEW_REJECT.name(),
                         SecurityAuthority.FINANCIAL_APPROVE.name(),
                         SecurityAuthority.MANAGEMENT_APPROVE.name(),
-                        SecurityAuthority.COMPLIANCE_REVIEW.name()
+                        SecurityAuthority.COMPLIANCE_REVIEW.name(),
+                        SecurityAuthority.REVIEW_STATUS_CHANGE.name()
                 );
     }
 }

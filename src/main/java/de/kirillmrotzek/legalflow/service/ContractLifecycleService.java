@@ -7,6 +7,7 @@ import de.kirillmrotzek.legalflow.lifecycle.ContractStatusTransitionValidator;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ public class ContractLifecycleService {
     private final ContractRepository contractRepository;
     private final ContractStatusTransitionValidator transitionValidator;
 
+    @PreAuthorize("hasAuthority('CONTRACT_STATUS_CHANGE')")
     @Transactional
     public Contract changeStatus(
             Long contractId,

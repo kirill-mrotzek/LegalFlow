@@ -211,4 +211,57 @@ class ContractApprovalServiceTest {
                 .save(any(ContractApproval.class));
     }
 
+    @Test
+    void createApproval_shouldThrowWhenContractDoesNotExist() {
+
+        when(contractRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() ->
+                contractApprovalService.createApproval(
+                        999L,
+                        ApprovalRole.LEGAL
+                )
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Contract not found: 999");
+
+        verify(contractApprovalRepository, never())
+                .save(any(ContractApproval.class));
+    }
+
+    @Test
+    void approve_shouldThrowWhenApprovalIsAlreadyApproved() {
+
+        Contract contract = new Contract();
+        contract.setId(1L);
+
+        ContractApproval approval = new ContractApproval();
+        approval.setId(10L);
+        approval.setContract(contract);
+        approval.setApprovalRole(ApprovalRole.LEGAL);
+        approval.setStatus(ApprovalStatus.APPROVED);
+
+        when(contractApprovalRepository.findById(10L))
+                .thenReturn(Optional.of(approval));
+
+        when(transitionValidator.isAllowed(
+                ApprovalStatus.APPROVED,
+                ApprovalStatus.APPROVED
+        )).thenReturn(false);
+
+        assertThatThrownBy(() ->
+                contractApprovalService.approve(
+                        10L,
+                        "kirill"
+                )
+        )
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining(
+                        "Invalid approval status transition"
+                );
+
+        verify(contractApprovalRepository, never())
+                .save(any(ContractApproval.class));
+    }
 }
