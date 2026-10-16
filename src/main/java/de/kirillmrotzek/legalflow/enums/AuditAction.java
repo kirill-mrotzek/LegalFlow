@@ -1,0 +1,14 @@
+package de.kirillmrotzek.legalflow.enums;
+
+public enum AuditAction {
+
+    CONTRACT_CREATED,
+    CONTRACT_UPDATED,
+    CONTRACT_DELETED,
+
+    REVIEW_STARTED,
+    REVIEW_APPROVED,
+    REVIEW_REJECTED,
+
+    STATUS_CHANGED
+}

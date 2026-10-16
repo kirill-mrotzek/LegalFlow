@@ -5,6 +5,7 @@ import de.kirillmrotzek.legalflow.enums.ContractStatus;
 import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.enums.AuditAction;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
@@ -27,6 +28,7 @@ public class ContractService {
     private final ContractRepository contractRepository;
     private final RiskAssessmentService riskAssessmentService;
     private final LegalReviewDecisionService legalReviewDecisionService;
+    private final AuditService auditService;
 
     @PreAuthorize("hasAuthority('CONTRACT_CREATE')")
     public Contract save(Contract contract) {
@@ -50,7 +52,16 @@ public class ContractService {
                 decision.getReason()
         );
 
-        return contractRepository.save(contract);
+        Contract savedContract =
+                contractRepository.save(contract);
+
+        auditService.log(
+                AuditAction.CONTRACT_CREATED,
+                "Contract",
+                savedContract.getId()
+        );
+
+        return savedContract;
     }
 
     @PreAuthorize("hasAuthority('CONTRACT_READ')")
@@ -175,12 +186,28 @@ public class ContractService {
                 decision.getReason()
         );
 
-        return contractRepository.save(existingContract);
+        Contract savedContract =
+                contractRepository.save(existingContract);
+
+        auditService.log(
+                AuditAction.CONTRACT_UPDATED,
+                "Contract",
+                savedContract.getId()
+        );
+
+        return savedContract;
     }
 
     @PreAuthorize("hasAuthority('CONTRACT_DELETE')")
     public void delete(Long id) {
         Contract existingContract = findById(id);
+
         contractRepository.delete(existingContract);
+
+        auditService.log(
+                AuditAction.CONTRACT_DELETED,
+                "Contract",
+                existingContract.getId()
+        );
     }
 }

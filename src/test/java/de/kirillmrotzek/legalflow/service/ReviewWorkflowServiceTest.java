@@ -1,5 +1,6 @@
 package de.kirillmrotzek.legalflow.service;
 
+import de.kirillmrotzek.legalflow.enums.AuditAction;
 import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.exception.ContractNotFoundException;
 import de.kirillmrotzek.legalflow.exception.InvalidReviewStatusTransitionException;
@@ -15,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,9 @@ class ReviewWorkflowServiceTest {
     @Mock
     private ReviewStatusTransitionValidator transitionValidator;
 
+    @Mock
+    private AuditService auditService;
+
     @InjectMocks
     private ReviewWorkflowService reviewWorkflowService;
 
@@ -36,6 +40,7 @@ class ReviewWorkflowServiceTest {
     void shouldChangeStatusFromPendingToInReview() {
 
         Contract contract = new Contract();
+        contract.setId(1L);
         contract.setReviewStatus(ReviewStatus.PENDING);
 
         when(contractRepository.findById(1L))
@@ -64,12 +69,18 @@ class ReviewWorkflowServiceTest {
                 ReviewStatus.PENDING,
                 ReviewStatus.IN_REVIEW
         );
+        verify(auditService).log(
+                AuditAction.STATUS_CHANGED,
+                "Contract",
+                contract.getId()
+        );
     }
 
     @Test
     void shouldChangeStatusFromInReviewToApproved() {
 
         Contract contract = new Contract();
+        contract.setId(1L);
         contract.setReviewStatus(ReviewStatus.IN_REVIEW);
 
         when(contractRepository.findById(1L))
@@ -98,12 +109,18 @@ class ReviewWorkflowServiceTest {
                 ReviewStatus.IN_REVIEW,
                 ReviewStatus.APPROVED
         );
+        verify(auditService).log(
+                AuditAction.STATUS_CHANGED,
+                "Contract",
+                contract.getId()
+        );
     }
 
     @Test
     void shouldChangeStatusFromInReviewToRejected() {
 
         Contract contract = new Contract();
+        contract.setId(1L);
         contract.setReviewStatus(ReviewStatus.IN_REVIEW);
 
         when(contractRepository.findById(1L))
@@ -132,6 +149,11 @@ class ReviewWorkflowServiceTest {
                 ReviewStatus.IN_REVIEW,
                 ReviewStatus.REJECTED
         );
+        verify(auditService).log(
+                AuditAction.STATUS_CHANGED,
+                "Contract",
+                contract.getId()
+        );
     }
 
     @Test
@@ -156,6 +178,11 @@ class ReviewWorkflowServiceTest {
                 )
         );
         verify(contractRepository, never()).save(contract);
+        verify(auditService, never()).log(
+                any(AuditAction.class),
+                anyString(),
+                anyLong()
+        );
     }
 
     @Test
@@ -174,6 +201,11 @@ class ReviewWorkflowServiceTest {
         verify(transitionValidator, never()).isAllowed(
                 any(ReviewStatus.class),
                 any(ReviewStatus.class)
+        );
+        verify(auditService, never()).log(
+                any(AuditAction.class),
+                anyString(),
+                anyLong()
         );
     }
 
@@ -212,6 +244,11 @@ class ReviewWorkflowServiceTest {
                 ReviewStatus.PENDING,
                 ReviewStatus.IN_REVIEW
         );
+        verify(auditService).log(
+                AuditAction.REVIEW_STARTED,
+                "Contract",
+                contract.getId()
+        );
     }
 
     @Test
@@ -249,6 +286,11 @@ class ReviewWorkflowServiceTest {
                 ReviewStatus.IN_REVIEW,
                 ReviewStatus.APPROVED
         );
+        verify(auditService).log(
+                AuditAction.REVIEW_APPROVED,
+                "Contract",
+                contract.getId()
+        );
     }
 
     @Test
@@ -285,6 +327,11 @@ class ReviewWorkflowServiceTest {
         verify(transitionValidator).isAllowed(
                 ReviewStatus.IN_REVIEW,
                 ReviewStatus.REJECTED
+        );
+        verify(auditService).log(
+                AuditAction.REVIEW_REJECTED,
+                "Contract",
+                contract.getId()
         );
     }
 }

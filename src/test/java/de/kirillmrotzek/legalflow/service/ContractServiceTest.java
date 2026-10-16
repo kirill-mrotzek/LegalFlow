@@ -36,11 +36,14 @@ class ContractServiceTest {
     @Mock
     private RiskAssessmentService riskAssessmentService;
 
-    @InjectMocks
-    private ContractService contractService;
-
     @Mock
     private LegalReviewDecisionService legalReviewDecisionService;
+
+    @Mock
+    private AuditService auditService;
+
+    @InjectMocks
+    private ContractService contractService;
 
     @Test
     void save_shouldReturnSavedContract() {
@@ -98,6 +101,11 @@ class ContractServiceTest {
         verify(contractRepository).save(contract);
         verify(riskAssessmentService).assess(contract);
         verify(legalReviewDecisionService).decide(assessment);
+        verify(auditService).log(
+                AuditAction.CONTRACT_CREATED,
+                "Contract",
+                savedContract.getId()
+        );
     }
 
     @Test
@@ -647,6 +655,11 @@ class ContractServiceTest {
         verify(riskAssessmentService).assess(existingContract);
         verify(contractRepository).save(existingContract);
         verify(legalReviewDecisionService).decide(assessment);
+        verify(auditService).log(
+                AuditAction.CONTRACT_UPDATED,
+                "Contract",
+                savedContract.getId()
+        );
     }
 
     @Test
@@ -779,6 +792,12 @@ class ContractServiceTest {
         contractService.delete(1L);
 
         verify(contractRepository).delete(contract);
+
+        verify(auditService).log(
+                AuditAction.CONTRACT_DELETED,
+                "Contract",
+                contract.getId()
+        );
     }
 
     @Test
