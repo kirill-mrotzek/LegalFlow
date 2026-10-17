@@ -11,6 +11,7 @@ import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.repository.ContractRepository;
 import de.kirillmrotzek.legalflow.risk.RiskAssessment;
 import de.kirillmrotzek.legalflow.specification.ContractSpecification;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ public class ContractService {
     private final RiskAssessmentService riskAssessmentService;
     private final LegalReviewDecisionService legalReviewDecisionService;
     private final AuditService auditService;
+    private final RiskAssessmentHistoryService riskAssessmentHistoryService;
 
     @PreAuthorize("hasAuthority('CONTRACT_CREATE')")
     public Contract save(Contract contract) {
@@ -54,6 +56,11 @@ public class ContractService {
 
         Contract savedContract =
                 contractRepository.save(contract);
+
+        riskAssessmentHistoryService.record(
+                savedContract,
+                assessment.getRiskLevel()
+        );
 
         auditService.log(
                 AuditAction.CONTRACT_CREATED,
@@ -189,6 +196,11 @@ public class ContractService {
         Contract savedContract =
                 contractRepository.save(existingContract);
 
+        riskAssessmentHistoryService.record(
+                savedContract,
+                assessment.getRiskLevel()
+        );
+
         auditService.log(
                 AuditAction.CONTRACT_UPDATED,
                 "Contract",
@@ -198,9 +210,13 @@ public class ContractService {
         return savedContract;
     }
 
+    @Transactional
     @PreAuthorize("hasAuthority('CONTRACT_DELETE')")
     public void delete(Long id) {
+
         Contract existingContract = findById(id);
+
+        riskAssessmentHistoryService.deleteByContractId(id);
 
         contractRepository.delete(existingContract);
 

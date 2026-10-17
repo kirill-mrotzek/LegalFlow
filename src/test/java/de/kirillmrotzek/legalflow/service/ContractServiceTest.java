@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
+        import static org.mockito.ArgumentMatchers.*;
+        import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +41,9 @@ class ContractServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private RiskAssessmentHistoryService riskAssessmentHistoryService;
 
     @InjectMocks
     private ContractService contractService;
@@ -105,6 +108,10 @@ class ContractServiceTest {
                 AuditAction.CONTRACT_CREATED,
                 "Contract",
                 savedContract.getId()
+        );
+        verify(riskAssessmentHistoryService).record(
+                savedContract,
+                RiskLevel.HIGH
         );
     }
 
@@ -659,6 +666,10 @@ class ContractServiceTest {
                 AuditAction.CONTRACT_UPDATED,
                 "Contract",
                 savedContract.getId()
+        );
+        verify(riskAssessmentHistoryService).record(
+                savedContract,
+                RiskLevel.MEDIUM
         );
     }
 
