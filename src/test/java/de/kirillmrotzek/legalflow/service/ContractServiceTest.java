@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-        import static org.mockito.ArgumentMatchers.*;
-        import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +44,9 @@ class ContractServiceTest {
 
     @Mock
     private RiskAssessmentHistoryService riskAssessmentHistoryService;
+
+    @Mock
+    private LegalReviewDecisionHistoryService legalReviewDecisionHistoryService;
 
     @InjectMocks
     private ContractService contractService;
@@ -112,6 +115,10 @@ class ContractServiceTest {
         verify(riskAssessmentHistoryService).record(
                 savedContract,
                 RiskLevel.HIGH
+        );
+        verify(legalReviewDecisionHistoryService).record(
+                savedContract,
+                decision
         );
     }
 
@@ -671,6 +678,10 @@ class ContractServiceTest {
                 savedContract,
                 RiskLevel.MEDIUM
         );
+        verify(legalReviewDecisionHistoryService).record(
+                savedContract,
+                decision
+        );
     }
 
     @Test
@@ -771,6 +782,10 @@ class ContractServiceTest {
         verify(riskAssessmentService).assess(existingContract);
         verify(legalReviewDecisionService).decide(assessment);
         verify(contractRepository).save(existingContract);
+        verify(legalReviewDecisionHistoryService).record(
+                savedContract,
+                decision
+        );
     }
 
     @Test
@@ -802,7 +817,14 @@ class ContractServiceTest {
 
         contractService.delete(1L);
 
-        verify(contractRepository).delete(contract);
+        verify(riskAssessmentHistoryService)
+                .deleteByContractId(1L);
+
+        verify(legalReviewDecisionHistoryService)
+                .deleteByContractId(1L);
+
+        verify(contractRepository)
+                .delete(contract);
 
         verify(auditService).log(
                 AuditAction.CONTRACT_DELETED,

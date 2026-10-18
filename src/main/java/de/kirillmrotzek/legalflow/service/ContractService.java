@@ -31,6 +31,8 @@ public class ContractService {
     private final LegalReviewDecisionService legalReviewDecisionService;
     private final AuditService auditService;
     private final RiskAssessmentHistoryService riskAssessmentHistoryService;
+    private final LegalReviewDecisionHistoryService
+            legalReviewDecisionHistoryService;
 
     @PreAuthorize("hasAuthority('CONTRACT_CREATE')")
     public Contract save(Contract contract) {
@@ -60,6 +62,11 @@ public class ContractService {
         riskAssessmentHistoryService.record(
                 savedContract,
                 assessment.getRiskLevel()
+        );
+
+        legalReviewDecisionHistoryService.record(
+                savedContract,
+                decision
         );
 
         auditService.log(
@@ -201,6 +208,11 @@ public class ContractService {
                 assessment.getRiskLevel()
         );
 
+        legalReviewDecisionHistoryService.record(
+                savedContract,
+                decision
+        );
+
         auditService.log(
                 AuditAction.CONTRACT_UPDATED,
                 "Contract",
@@ -217,6 +229,8 @@ public class ContractService {
         Contract existingContract = findById(id);
 
         riskAssessmentHistoryService.deleteByContractId(id);
+
+        legalReviewDecisionHistoryService.deleteByContractId(id);
 
         contractRepository.delete(existingContract);
 
