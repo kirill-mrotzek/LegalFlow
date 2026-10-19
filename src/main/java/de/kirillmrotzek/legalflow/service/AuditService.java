@@ -18,6 +18,23 @@ public class AuditService {
         this.auditEventRepository = auditEventRepository;
     }
 
+    private void save(
+            String username,
+            AuditAction action,
+            String entityType,
+            Long entityId
+    ) {
+        AuditEvent event = new AuditEvent();
+
+        event.setUsername(username);
+        event.setAction(action);
+        event.setEntityType(entityType);
+        event.setEntityId(entityId);
+        event.setTimestamp(LocalDateTime.now());
+
+        auditEventRepository.save(event);
+    }
+
     public void log(
             AuditAction action,
             String entityType,
@@ -28,16 +45,24 @@ public class AuditService {
                         .getContext()
                         .getAuthentication();
 
-        String username = authentication.getName();
+        save(
+                authentication.getName(),
+                action,
+                entityType,
+                entityId
+        );
+    }
 
-        AuditEvent event = new AuditEvent();
-
-        event.setUsername(username);
-        event.setAction(action);
-        event.setEntityType(entityType);
-        event.setEntityId(entityId);
-        event.setTimestamp(LocalDateTime.now());
-
-        auditEventRepository.save(event);
+    public void logSystem(
+            AuditAction action,
+            String entityType,
+            Long entityId
+    ) {
+        save(
+                "SYSTEM",
+                action,
+                entityType,
+                entityId
+        );
     }
 }
