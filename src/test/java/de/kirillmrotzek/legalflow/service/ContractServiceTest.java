@@ -48,6 +48,9 @@ class ContractServiceTest {
     @Mock
     private LegalReviewDecisionHistoryService legalReviewDecisionHistoryService;
 
+    @Mock
+    private ContractRenewalHistoryService contractRenewalHistoryService;
+
     @InjectMocks
     private ContractService contractService;
 
@@ -831,6 +834,9 @@ class ContractServiceTest {
                 "Contract",
                 contract.getId()
         );
+
+        verify(contractRenewalHistoryService)
+                .deleteByContractId(1L);
     }
 
     @Test
