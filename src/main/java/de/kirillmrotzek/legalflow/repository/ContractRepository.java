@@ -16,4 +16,10 @@ public interface ContractRepository
             ContractStatus contractStatus,
             LocalDate date
     );
+
+    List<Contract> findByContractStatusAndEndDateBetween(
+            ContractStatus contractStatus,
+            LocalDate startDate,
+            LocalDate endDate
+    );
 }
