@@ -1,6 +1,8 @@
 package de.kirillmrotzek.legalflow.repository;
 
 import de.kirillmrotzek.legalflow.enums.ContractStatus;
+import de.kirillmrotzek.legalflow.enums.ReviewStatus;
+import de.kirillmrotzek.legalflow.enums.RiskLevel;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -22,4 +24,8 @@ public interface ContractRepository
             LocalDate startDate,
             LocalDate endDate
     );
+
+    long countByRiskLevel(RiskLevel riskLevel);
+
+    long countByReviewStatus(ReviewStatus reviewStatus);
 }
