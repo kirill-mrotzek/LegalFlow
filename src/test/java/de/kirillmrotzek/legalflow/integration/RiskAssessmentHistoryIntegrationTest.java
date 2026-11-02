@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class RiskAssessmentHistoryIntegrationTest {
+class RiskAssessmentHistoryIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private ContractRepository contractRepository;

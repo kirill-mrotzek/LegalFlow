@@ -21,7 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class ContractExpiryIntegrationTest {
+class ContractExpiryIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private ContractRepository contractRepository;

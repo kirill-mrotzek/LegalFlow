@@ -7,6 +7,7 @@ import de.kirillmrotzek.legalflow.enums.ContractType;
 import de.kirillmrotzek.legalflow.enums.ReviewStatus;
 import de.kirillmrotzek.legalflow.enums.ReviewType;
 import de.kirillmrotzek.legalflow.enums.RiskLevel;
+import de.kirillmrotzek.legalflow.integration.IntegrationTestBase;
 import de.kirillmrotzek.legalflow.model.Contract;
 import de.kirillmrotzek.legalflow.model.ContractApproval;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class ContractApprovalRepositoryTest {
+class ContractApprovalRepositoryTest extends IntegrationTestBase {
 
     @Autowired
     private ContractRepository contractRepository;

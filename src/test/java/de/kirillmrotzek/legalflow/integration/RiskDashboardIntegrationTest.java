@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Transactional
-class RiskDashboardIntegrationTest {
+class RiskDashboardIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private RiskDashboardService riskDashboardService;

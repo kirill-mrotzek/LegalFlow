@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class AuditTrailIntegrationTest {
+class AuditTrailIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private AuditEventRepository auditEventRepository;
@@ -45,8 +45,6 @@ class AuditTrailIntegrationTest {
                         )
                 )
         );
-
-        auditEventRepository.deleteAll();
     }
 
     @Test

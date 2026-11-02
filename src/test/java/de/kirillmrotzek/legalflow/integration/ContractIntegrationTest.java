@@ -27,8 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.springframework.web.context.WebApplicationContext;
 
-import org.springframework.test.annotation.DirtiesContext;
-
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -36,8 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class ContractIntegrationTest {
+class ContractIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private WebApplicationContext webApplicationContext;

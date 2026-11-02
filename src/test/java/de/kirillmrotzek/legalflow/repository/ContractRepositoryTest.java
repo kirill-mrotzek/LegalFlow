@@ -1,6 +1,7 @@
 package de.kirillmrotzek.legalflow.repository;
 
 import de.kirillmrotzek.legalflow.enums.*;
+import de.kirillmrotzek.legalflow.integration.IntegrationTestBase;
 import de.kirillmrotzek.legalflow.model.Contract;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class ContractRepositoryTest {
+class ContractRepositoryTest extends IntegrationTestBase {
 
     @Autowired
     private ContractRepository contractRepository;
