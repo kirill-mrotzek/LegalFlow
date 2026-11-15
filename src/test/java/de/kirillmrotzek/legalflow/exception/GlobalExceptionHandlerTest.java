@@ -109,4 +109,29 @@ class GlobalExceptionHandlerTest {
                 response.getBody().getMessage()
         );
     }
+
+    @Test
+    void handleUnexpectedException_shouldReturn500WithoutExposingInternalDetails() {
+
+        RuntimeException exception =
+                new RuntimeException("database password leaked");
+
+        ResponseEntity<ErrorResponse> response =
+                handler.handleUnexpectedException(exception);
+
+        assertEquals(500, response.getStatusCode().value());
+
+        assertNotNull(response.getBody());
+
+        assertEquals(500, response.getBody().getStatus());
+
+        assertEquals(
+                "An unexpected error occurred",
+                response.getBody().getMessage()
+        );
+
+        assertFalse(
+                response.getBody().getMessage().contains("database password leaked")
+        );
+    }
 }
