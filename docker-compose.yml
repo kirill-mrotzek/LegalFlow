@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:17
+    container_name: legalflow-db
+    environment:
+      POSTGRES_DB: legalflow
+      POSTGRES_USER: ${LEGALFLOW_DB_USERNAME:-legalflow}
+      POSTGRES_PASSWORD: ${LEGALFLOW_DB_PASSWORD:?LEGALFLOW_DB_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: legalflow-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      LEGALFLOW_DB_URL: jdbc:postgresql://db:5432/legalflow
+      LEGALFLOW_DB_USERNAME: ${LEGALFLOW_DB_USERNAME:-legalflow}
+      LEGALFLOW_DB_PASSWORD: ${LEGALFLOW_DB_PASSWORD:?LEGALFLOW_DB_PASSWORD is required}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
